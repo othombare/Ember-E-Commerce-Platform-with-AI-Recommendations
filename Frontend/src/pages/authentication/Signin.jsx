@@ -84,7 +84,7 @@ function Signin() {
 
           <p className="mt-auto pt-10 text-center text-[15px] text-[#7a746e]">
             Don&apos;t have an account ?{' '}
-            <Link className="font-semibold text-[#2f2d2a]" to="/signup">
+            <Link className="font-semibold text-[#2f2d2a] hover:underline" to="/signup">
               Sign Up
             </Link>
           </p>
