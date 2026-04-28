@@ -1,10 +1,27 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import api from '../../api/axios'
 import streetWearImage from '../../assets/18f2e284f057c74506dbaac944391d40550e1bfc.png'
 
 const inputClassName =
   'h-11 w-full border border-[#c9c5bf] bg-[#f1efeb] px-4 text-[15px] text-[#3d3d3d] outline-none transition focus:border-[#6f6a64]'
 
 function Signin() {
+  const [apiStatus, setApiStatus] = useState('')
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setApiStatus('Checking API connection...')
+
+    try {
+      const response = await api.get('/todos/1')
+      const todoTitle = response.data?.title || 'Dummy API responded successfully.'
+      setApiStatus(`Dummy API call succeeded: ${todoTitle}`)
+    } catch (error) {
+      setApiStatus(`Dummy API call failed: ${error.message}`)
+    }
+  }
+
   return (
     <main className="h-[100dvh] w-full overflow-hidden bg-[#3a3d42]">
       <section className="grid h-full w-full border-2 border-[#1ea3ff] bg-[#eceae7] md:grid-cols-[1.02fr_1fr]">
@@ -23,7 +40,7 @@ function Signin() {
 
           <form
             className="mt-8 flex flex-col gap-5"
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={handleSubmit}
           >
             <label className="text-[19px] font-semibold text-[#4a4742]">
               Email
@@ -80,6 +97,12 @@ function Signin() {
               </svg>
               Sign In with Google
             </button>
+
+            {apiStatus ? (
+              <p aria-live="polite" className="text-[14px] text-[#5a5550]">
+                {apiStatus}
+              </p>
+            ) : null}
           </form>
 
           <p className="mt-auto pt-10 text-center text-[15px] text-[#7a746e]">
