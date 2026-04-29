@@ -5,6 +5,8 @@ import Signin from '../pages/authentication/Signin'
 import Signup from '../pages/authentication/Signup'
 import ForgotPassword from '../pages/authentication/ForgetPassword'
 import Dashboard from '../pages/dashboard/Dashboard'
+import AllProducts from '../pages/products/AllProducts'
+import SearchResults from '../pages/products/SearchResults'
 
 function HomeRedirect() {
   const token = useAuthStore((state) => state.token)
@@ -23,6 +25,9 @@ function AppRouter() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/products" element={<AllProducts />} />
+          <Route path="/search-results" element={<SearchResults />} />
+          <Route path="/category/:categoryName" element={<SearchResults />} />
           <Route path="/account" element={<Navigate replace to="/dashboard" />} />
         </Route>
 

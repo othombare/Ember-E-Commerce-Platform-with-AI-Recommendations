@@ -38,7 +38,11 @@ import promoBottom from '../../assets/home/promo-bottom.png'
 import promoCenter from '../../assets/home/promo-center.png'
 import promoLeft from '../../assets/home/promo-left.png'
 import promoRight from '../../assets/home/promo-right.png'
+import StoreFooter from '../../components/layout/StoreFooter'
+import StoreHeader from '../../components/layout/StoreHeader'
+import { categoryCatalog as sharedCategoryCatalog } from '../../data/categoryCatalog'
 import useAuthStore from '../../store/authStore'
+import { toCategoryRoute } from '../../utils/category'
 
 const headerLinks = ['Men', 'Women', 'Kids', 'GenZ', 'New Collections', 'Ai Recommendation']
 const categoryTabs = ['Men', 'Women', 'Kids']
@@ -101,7 +105,7 @@ function IconButton({ children, label }) {
   )
 }
 
-function CategoryStrip({ activeCategory, isPanelOpen, onCategoryTap }) {
+function CategoryStrip({ activeCategory, isPanelOpen, onCategoryTap, onCategorySelect }) {
   const cards = isPanelOpen && activeCategory ? categoryCatalog[activeCategory] ?? [] : []
 
   return (
@@ -176,7 +180,19 @@ function CategoryStrip({ activeCategory, isPanelOpen, onCategoryTap }) {
         <div className="border-t border-[#e5e5e5] px-4 pb-3 pt-3">
           <div className="flex gap-5 overflow-x-auto pb-1">
             {cards.map((card) => (
-              <article className="group min-w-[108px] cursor-pointer text-center" key={card.id}>
+              <article
+                className="group min-w-[108px] cursor-pointer text-center"
+                key={card.id}
+                onClick={() => onCategorySelect(card.label)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    onCategorySelect(card.label)
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+              >
                 <div className="overflow-hidden rounded-[4px] border border-transparent transition duration-200 group-hover:-translate-y-1 group-hover:border-[#d2d2d2] group-hover:shadow-md">
                   <img
                     alt={card.label}
@@ -266,7 +282,7 @@ function ProductCard({ product, onOpen }) {
   )
 }
 
-function ProductSection({ title, subtitle, products, showSeeAllButton = false, onOpenDetails }) {
+function ProductSection({ title, subtitle, products, showSeeAllButton = false, onOpenDetails, onSeeAllClick }) {
   return (
     <section>
       <SectionHeading subtitle={subtitle} title={title} />
@@ -280,6 +296,7 @@ function ProductSection({ title, subtitle, products, showSeeAllButton = false, o
         <div className="mt-9 flex justify-center">
           <button
             className="h-14 border border-[#b8b8b8] bg-[#f6f4f1] px-9 text-[15px] text-[#2e2e2e] transition duration-200 hover:-translate-y-0.5 hover:border-[#2e2e2e] hover:bg-white"
+            onClick={onSeeAllClick}
             type="button"
           >
             See All Products
@@ -522,7 +539,11 @@ function ProductDetailView({ product, onBack, onOpenDetails }) {
   )
 }
 
-function Footer() {
+function Footer({ onCategorySelect }) {
+  const menCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', 'All Shirts', 'Cargoes', 'Active Wear', 'Hoodies & Jackets']
+  const womenCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', "Saree's", 'Kurtas & Suits', 'Formals', 'Active Wear']
+  const kidsCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', 'Jeans', 'Shirts', 'Formals', 'Party Wear']
+
   return (
     <footer className="bg-[#1f2024] text-[#d6d6d6]">
       <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-7 py-14 md:grid-cols-[1.35fr_.75fr_.7fr_1.4fr]">
@@ -565,36 +586,33 @@ function Footer() {
           <div className="grid grid-cols-3 gap-4 text-[17px] text-[#b8b8b8]">
             <ul className="space-y-2">
               <li className="text-white">Men</li>
-              <li>T-shirts</li>
-              <li>Joggers</li>
-              <li>Polo's</li>
-              <li>Shorts</li>
-              <li>All Shirts</li>
-              <li>Cargoes</li>
-              <li>Active Wear</li>
-              <li>Hoodies & Jackets</li>
+              {menCategories.map((category) => (
+                <li key={`men-${category}`}>
+                  <button className="transition hover:text-white" onClick={() => onCategorySelect(category)} type="button">
+                    {category}
+                  </button>
+                </li>
+              ))}
             </ul>
             <ul className="space-y-2">
               <li className="text-white">Women</li>
-              <li>T-shirts</li>
-              <li>Joggers</li>
-              <li>Polo's</li>
-              <li>Shorts</li>
-              <li>Saree's</li>
-              <li>Kurtas & Suits</li>
-              <li>Formals</li>
-              <li>Active Wear</li>
+              {womenCategories.map((category) => (
+                <li key={`women-${category}`}>
+                  <button className="transition hover:text-white" onClick={() => onCategorySelect(category)} type="button">
+                    {category}
+                  </button>
+                </li>
+              ))}
             </ul>
             <ul className="space-y-2">
               <li className="text-white">Kids</li>
-              <li>T-shirts</li>
-              <li>Joggers</li>
-              <li>Polo's</li>
-              <li>Shorts</li>
-              <li>Jeans</li>
-              <li>Shirts</li>
-              <li>Formals</li>
-              <li>Party Wear</li>
+              {kidsCategories.map((category) => (
+                <li key={`kids-${category}`}>
+                  <button className="transition hover:text-white" onClick={() => onCategorySelect(category)} type="button">
+                    {category}
+                  </button>
+                </li>
+              ))}
             </ul>
           </div>
         </section>
@@ -608,6 +626,7 @@ function Dashboard() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+  const [headerSearchText, setHeaderSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
   const [detailProduct, setDetailProduct] = useState(null)
@@ -632,10 +651,32 @@ function Dashboard() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const handleOpenProductsPage = () => {
+    navigate('/products')
+  }
+
+  const handleOpenCategoryPage = (categoryLabel) => {
+    navigate(toCategoryRoute(categoryLabel))
+  }
+
+  const handleHeaderSearchSubmit = () => {
+    const query = headerSearchText.trim() || 'cotton'
+    navigate(`/search-results?q=${encodeURIComponent(query)}`)
+  }
+
   return (
     <main className="min-h-screen bg-[#3f3f42] px-2 py-5 text-[#202020] sm:px-5">
       <div className="mx-auto w-full max-w-[1260px]">
-        <CategoryStrip activeCategory={activeCategory} isPanelOpen={isCategoryPanelOpen} onCategoryTap={handleCategoryTap} />
+        <StoreHeader
+          activeCategory={activeCategory}
+          categoryCatalog={sharedCategoryCatalog}
+          isCategoryPanelOpen={isCategoryPanelOpen}
+          onCategoryCardSelect={handleOpenCategoryPage}
+          onCategoryTabToggle={handleCategoryTap}
+          onSearchChange={setHeaderSearchText}
+          onSearchSubmit={handleHeaderSearchSubmit}
+          searchText={headerSearchText}
+        />
 
         {detailProduct ? (
           <ProductDetailView onBack={() => setDetailProduct(null)} onOpenDetails={handleOpenDetails} product={detailProduct} />
@@ -694,7 +735,13 @@ function Dashboard() {
                 </div>
               </section>
 
-              <ProductSection onOpenDetails={handleOpenDetails} products={allProducts} showSeeAllButton title="NEW ARRIVALS" />
+              <ProductSection
+                onOpenDetails={handleOpenDetails}
+                onSeeAllClick={handleOpenProductsPage}
+                products={allProducts}
+                showSeeAllButton
+                title="NEW ARRIVALS"
+              />
               <ProductSection
                 onOpenDetails={handleOpenDetails}
                 products={featuredProducts}
@@ -723,7 +770,7 @@ function Dashboard() {
           </>
         )}
 
-        <Footer />
+        <StoreFooter onCategorySelect={handleOpenCategoryPage} />
       </div>
     </main>
   )
