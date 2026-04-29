@@ -94,7 +94,7 @@ function IconButton({ children, label }) {
   return (
     <button
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-[#1f1f1f] transition hover:border-[#cfcfcf]"
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-[#1f1f1f] transition duration-200 hover:-translate-y-0.5 hover:border-[#cfcfcf] hover:bg-[#f3f3f3]"
       type="button"
     >
       {children}
@@ -115,7 +115,9 @@ function CategoryStrip({ activeCategory, onCategoryChange }) {
             const isCategoryTab = categoryTabs.includes(link)
             return (
               <button
-                className={`${isActive ? 'text-black' : 'text-[#2e2e2e]'} transition hover:text-black`}
+                className={`${
+                  isActive ? 'text-black' : 'text-[#2e2e2e]'
+                } relative transition duration-200 hover:text-black after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-[#1f1f1f] after:transition-transform after:duration-200 hover:after:scale-x-100`}
                 key={link}
                 onClick={() => {
                   if (isCategoryTab) {
@@ -173,9 +175,17 @@ function CategoryStrip({ activeCategory, onCategoryChange }) {
       <div className="border-t border-[#e5e5e5] px-4 pb-3 pt-3">
         <div className="flex gap-5 overflow-x-auto pb-1">
           {cards.map((card) => (
-            <article className="min-w-[108px] text-center" key={card.id}>
-              <img alt={card.label} className="h-[160px] w-[108px] rounded-[4px] object-cover" src={card.image} />
-              <p className="mt-2 text-[15px] font-medium text-[#303030]">{card.label}</p>
+            <article className="group min-w-[108px] cursor-pointer text-center" key={card.id}>
+              <div className="overflow-hidden rounded-[4px] border border-transparent transition duration-200 group-hover:-translate-y-1 group-hover:border-[#d2d2d2] group-hover:shadow-md">
+                <img
+                  alt={card.label}
+                  className="h-[160px] w-[108px] object-cover transition duration-300 group-hover:scale-105"
+                  src={card.image}
+                />
+              </div>
+              <p className="mt-2 text-[15px] font-medium text-[#303030] transition duration-200 group-hover:text-black">
+                {card.label}
+              </p>
             </article>
           ))}
         </div>
@@ -202,7 +212,7 @@ function SectionArrows() {
     <div className="mb-4 flex justify-end gap-3">
       <button
         aria-label="Previous"
-        className="flex h-11 w-11 items-center justify-center border border-[#9f9f9f] text-[#252525]"
+        className="flex h-11 w-11 items-center justify-center border border-[#9f9f9f] text-[#252525] transition duration-200 hover:-translate-y-0.5 hover:border-[#252525] hover:bg-[#252525] hover:text-white"
         type="button"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -211,7 +221,7 @@ function SectionArrows() {
       </button>
       <button
         aria-label="Next"
-        className="flex h-11 w-11 items-center justify-center border border-[#9f9f9f] text-[#252525]"
+        className="flex h-11 w-11 items-center justify-center border border-[#9f9f9f] text-[#252525] transition duration-200 hover:-translate-y-0.5 hover:border-[#252525] hover:bg-[#252525] hover:text-white"
         type="button"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -224,11 +234,19 @@ function SectionArrows() {
 
 function ProductCard({ product }) {
   return (
-    <article className="border border-[#bcbcbc] bg-[#f3f1ed]">
-      <img alt={product.name} className="h-[320px] w-full object-cover" src={product.image} />
+    <article className="group cursor-pointer border border-[#bcbcbc] bg-[#f3f1ed] transition duration-200 hover:-translate-y-1 hover:border-[#8f8f8f] hover:shadow-lg">
+      <div className="overflow-hidden">
+        <img
+          alt={product.name}
+          className="h-[320px] w-full object-cover transition duration-300 group-hover:scale-105"
+          src={product.image}
+        />
+      </div>
       <div className="px-3 py-2">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="truncate text-[18px] font-medium text-[#2c2c2c]">{product.name}</h3>
+          <h3 className="truncate text-[18px] font-medium text-[#2c2c2c] transition duration-200 group-hover:text-black">
+            {product.name}
+          </h3>
           <span className="shrink-0 text-[14px] text-[#515151]">
             <span className="text-[#e4b223]">*</span> 4.7 (127)
           </span>
@@ -256,7 +274,7 @@ function ProductSection({ title, subtitle, products, showSeeAllButton = false })
       {showSeeAllButton ? (
         <div className="mt-9 flex justify-center">
           <button
-            className="h-14 border border-[#b8b8b8] bg-[#f6f4f1] px-9 text-[15px] text-[#2e2e2e] transition hover:bg-white"
+            className="h-14 border border-[#b8b8b8] bg-[#f6f4f1] px-9 text-[15px] text-[#2e2e2e] transition duration-200 hover:-translate-y-0.5 hover:border-[#2e2e2e] hover:bg-white"
             type="button"
           >
             See All Products
@@ -291,7 +309,7 @@ function Dashboard() {
           <div className="mb-4 flex items-center justify-end gap-4">
             <p className="text-[14px] text-[#666]">Hi, {user?.name ?? 'Shopper'}</p>
             <button
-              className="h-9 rounded-md bg-[#1f2125] px-3 text-[13px] font-medium text-white transition hover:bg-black"
+              className="h-9 rounded-md bg-[#1f2125] px-3 text-[13px] font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-black"
               onClick={handleLogout}
               type="button"
             >
@@ -300,20 +318,36 @@ function Dashboard() {
           </div>
 
           <section className="grid gap-2 lg:grid-cols-[1.02fr_1.48fr]">
-            <div className="overflow-hidden border border-[#d0d0d0]">
-              <img alt="Ugadi sale banner" className="h-full w-full object-cover" src={promoLeft} />
+            <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
+              <img
+                alt="Ugadi sale banner"
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                src={promoLeft}
+              />
             </div>
             <div className="grid gap-2">
               <div className="grid gap-2 sm:grid-cols-2">
-                <div className="overflow-hidden border border-[#d0d0d0]">
-                  <img alt="Special edition hoodie banner" className="h-full w-full object-cover" src={promoCenter} />
+                <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
+                  <img
+                    alt="Special edition hoodie banner"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                    src={promoCenter}
+                  />
                 </div>
-                <div className="overflow-hidden border border-[#d0d0d0]">
-                  <img alt="Autumn offer banner" className="h-full w-full object-cover" src={promoRight} />
+                <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
+                  <img
+                    alt="Autumn offer banner"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                    src={promoRight}
+                  />
                 </div>
               </div>
-              <div className="overflow-hidden border border-[#d0d0d0]">
-                <img alt="New knits banner" className="h-full w-full object-cover" src={promoBottom} />
+              <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
+                <img
+                  alt="New knits banner"
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                  src={promoBottom}
+                />
               </div>
             </div>
           </section>
@@ -326,8 +360,12 @@ function Dashboard() {
           />
 
           <section className="mt-14">
-            <div className="overflow-hidden border border-[#c1c8d7]">
-              <img alt="Exclusive men's collection banner" className="w-full object-cover" src={mensCollectionBanner} />
+            <div className="group overflow-hidden border border-[#c1c8d7] transition duration-200 hover:shadow-lg">
+              <img
+                alt="Exclusive men's collection banner"
+                className="w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                src={mensCollectionBanner}
+              />
             </div>
           </section>
 
@@ -353,7 +391,7 @@ function Dashboard() {
               <div className="flex gap-3">
                 {['in', 'ig', 'yt', 'x'].map((social) => (
                   <span
-                    className="flex h-11 w-11 items-center justify-center border border-[#8f8f8f] text-[15px] uppercase text-[#bababa]"
+                    className="flex h-11 w-11 cursor-pointer items-center justify-center border border-[#8f8f8f] text-[15px] uppercase text-[#bababa] transition duration-200 hover:-translate-y-0.5 hover:border-white hover:text-white"
                     key={social}
                   >
                     {social}
@@ -380,36 +418,36 @@ function Dashboard() {
               <div className="grid grid-cols-3 gap-4 text-[17px] text-[#b8b8b8]">
                 <ul className="space-y-2">
                   <li className="text-white">Men</li>
-                  <li>T-shirts</li>
-                  <li>Joggers</li>
-                  <li>Polo's</li>
-                  <li>Shorts</li>
-                  <li>All Shirts</li>
-                  <li>Cargoes</li>
-                  <li>Active Wear</li>
-                  <li>Hoodies & Jackets</li>
+                  <li className="cursor-pointer transition hover:text-white">T-shirts</li>
+                  <li className="cursor-pointer transition hover:text-white">Joggers</li>
+                  <li className="cursor-pointer transition hover:text-white">Polo's</li>
+                  <li className="cursor-pointer transition hover:text-white">Shorts</li>
+                  <li className="cursor-pointer transition hover:text-white">All Shirts</li>
+                  <li className="cursor-pointer transition hover:text-white">Cargoes</li>
+                  <li className="cursor-pointer transition hover:text-white">Active Wear</li>
+                  <li className="cursor-pointer transition hover:text-white">Hoodies & Jackets</li>
                 </ul>
                 <ul className="space-y-2">
                   <li className="text-white">Women</li>
-                  <li>T-shirts</li>
-                  <li>Joggers</li>
-                  <li>Polo's</li>
-                  <li>Shorts</li>
-                  <li>Saree's</li>
-                  <li>Kurtas & Suits</li>
-                  <li>Formals</li>
-                  <li>Active Wear</li>
+                  <li className="cursor-pointer transition hover:text-white">T-shirts</li>
+                  <li className="cursor-pointer transition hover:text-white">Joggers</li>
+                  <li className="cursor-pointer transition hover:text-white">Polo's</li>
+                  <li className="cursor-pointer transition hover:text-white">Shorts</li>
+                  <li className="cursor-pointer transition hover:text-white">Saree's</li>
+                  <li className="cursor-pointer transition hover:text-white">Kurtas & Suits</li>
+                  <li className="cursor-pointer transition hover:text-white">Formals</li>
+                  <li className="cursor-pointer transition hover:text-white">Active Wear</li>
                 </ul>
                 <ul className="space-y-2">
                   <li className="text-white">Kids</li>
-                  <li>T-shirts</li>
-                  <li>Joggers</li>
-                  <li>Polo's</li>
-                  <li>Shorts</li>
-                  <li>Jeans</li>
-                  <li>Shirts</li>
-                  <li>Formals</li>
-                  <li>Party Wear</li>
+                  <li className="cursor-pointer transition hover:text-white">T-shirts</li>
+                  <li className="cursor-pointer transition hover:text-white">Joggers</li>
+                  <li className="cursor-pointer transition hover:text-white">Polo's</li>
+                  <li className="cursor-pointer transition hover:text-white">Shorts</li>
+                  <li className="cursor-pointer transition hover:text-white">Jeans</li>
+                  <li className="cursor-pointer transition hover:text-white">Shirts</li>
+                  <li className="cursor-pointer transition hover:text-white">Formals</li>
+                  <li className="cursor-pointer transition hover:text-white">Party Wear</li>
                 </ul>
               </div>
             </section>
