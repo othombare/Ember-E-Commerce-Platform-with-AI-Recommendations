@@ -33,16 +33,9 @@ function createApiError(error) {
 
 api.interceptors.request.use(
   (config) => {
-    const { token, tokenExpiresAt, logout } = useAuthStore.getState()
+    const { token } = useAuthStore.getState()
 
-    if (!isTokenValid(token, tokenExpiresAt)) {
-      if (token) {
-        logout()
-      }
-      return config
-    }
-
-    if (token) {
+    if (isTokenValid(token)) {
       config.headers.Authorization = `Bearer ${token}`
     }
 

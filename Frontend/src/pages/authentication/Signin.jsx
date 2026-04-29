@@ -6,7 +6,6 @@ import useAuthStore, { isTokenValid } from '../../store/authStore'
 
 const inputClassName =
   'h-11 w-full border border-[#c9c5bf] bg-[#f1efeb] px-4 text-[15px] text-[#3d3d3d] outline-none transition focus:border-[#6f6a64]'
-const SESSION_DURATION_MS = 60 * 60 * 1000
 
 function createDisplayName(email) {
   const rawName = email.split('@')[0]?.replace(/[._-]+/g, ' ').trim()
@@ -25,14 +24,13 @@ function createDisplayName(email) {
 function Signin() {
   const navigate = useNavigate()
   const token = useAuthStore((state) => state.token)
-  const tokenExpiresAt = useAuthStore((state) => state.tokenExpiresAt)
   const login = useAuthStore((state) => state.login)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [apiStatus, setApiStatus] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  if (isTokenValid(token, tokenExpiresAt)) {
+  if (isTokenValid(token)) {
     return <Navigate replace to="/dashboard" />
   }
 
@@ -56,7 +54,7 @@ function Signin() {
         name: createDisplayName(email),
       }
 
-      login({ user, token: mockToken, expiresAt: Date.now() + SESSION_DURATION_MS })
+      login({ user, token: mockToken })
 
       const todoTitle = response.data?.title || 'API responded successfully.'
       setApiStatus(`Signed in successfully: ${todoTitle}`)

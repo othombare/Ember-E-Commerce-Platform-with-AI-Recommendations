@@ -8,8 +8,7 @@ import Dashboard from '../pages/dashboard/Dashboard'
 
 function HomeRedirect() {
   const token = useAuthStore((state) => state.token)
-  const tokenExpiresAt = useAuthStore((state) => state.tokenExpiresAt)
-  return <Navigate replace to={isTokenValid(token, tokenExpiresAt) ? '/dashboard' : '/signin'} />
+  return <Navigate replace to={isTokenValid(token) ? '/dashboard' : '/signin'} />
 }
 
 function AppRouter() {
