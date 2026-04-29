@@ -17,7 +17,7 @@ function StoreFooter({ onCategorySelect }) {
 
   return (
     <footer className="bg-[#1f2024] text-[#d6d6d6]">
-      <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-7 py-14 md:grid-cols-[1.35fr_.75fr_.7fr_1.4fr]">
+      <div className="grid w-full gap-10 px-7 py-14 md:grid-cols-[1.35fr_.75fr_.7fr_1.4fr]">
         <section>
           <p className="max-w-[420px] text-[17px] leading-relaxed text-[#a5a5a5]">
             Ember is where modern design meets timeless expression. Crafted for those who value subtle luxury, every piece

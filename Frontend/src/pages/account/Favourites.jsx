@@ -50,8 +50,8 @@ function Favourites() {
   }
 
   return (
-    <main className="min-h-screen bg-[#3f3f42] px-2 py-5 text-[#202020] sm:px-5">
-      <div className="mx-auto w-full max-w-[1260px] bg-white">
+    <main className="min-h-screen w-full bg-[#3f3f42] text-[#202020]">
+      <div className="w-full min-h-screen bg-white">
         <StoreHeader
           activeCategory={activeCategory}
           categoryCatalog={categoryCatalog}

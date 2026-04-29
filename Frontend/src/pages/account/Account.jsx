@@ -13,8 +13,8 @@ function Account() {
   }
 
   return (
-    <main className="min-h-screen bg-[#eceae7] px-6 py-8 text-[#2f2d2b] md:px-10">
-      <section className="mx-auto max-w-3xl rounded-2xl border border-[#d8d4cf] bg-white p-6 shadow-sm md:p-8">
+    <main className="min-h-screen w-full bg-[#eceae7] px-6 py-8 text-[#2f2d2b] md:px-10">
+      <section className="w-full rounded-2xl border border-[#d8d4cf] bg-white p-6 shadow-sm md:p-8">
         <p className="text-[12px] uppercase tracking-[0.32em] text-[#6c6760]">EMBER SESSION</p>
         <h1 className="mt-4 text-3xl font-semibold md:text-4xl">Welcome, {user?.name ?? 'Shopper'}</h1>
 
