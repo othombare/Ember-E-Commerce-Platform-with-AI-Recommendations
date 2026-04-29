@@ -7,6 +7,7 @@ import menCategory4 from '../../assets/categories/men/item-4.png'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
+import useAuthStore from '../../store/authStore'
 import { normalizeCategoryLabel, toCategoryRoute } from '../../utils/category'
 
 const categoryFilters = [
@@ -166,6 +167,8 @@ function ProductTile({ product }) {
 
 function SearchResults() {
   const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
   const { categoryName } = useParams()
   const [searchParams] = useSearchParams()
   const queryFromUrl = searchParams.get('q') ?? ''
@@ -293,6 +296,27 @@ function SearchResults() {
     navigate(toCategoryRoute(categoryLabel))
   }
 
+  const handleLogout = () => {
+    logout()
+    navigate('/signin')
+  }
+
+  const handleOpenFavouritesPage = () => {
+    navigate('/favourites')
+  }
+
+  const handleOpenNotificationsPage = () => {
+    navigate('/notifications')
+  }
+
+  const handleOpenProfilePage = () => {
+    navigate('/my-profile')
+  }
+
+  const handleOpenProductsPage = () => {
+    navigate('/products')
+  }
+
   return (
     <main className="min-h-screen bg-[#3f3f42] px-2 py-5 text-[#202020] sm:px-5">
       <div className="mx-auto w-full max-w-[1260px] bg-white">
@@ -302,9 +326,15 @@ function SearchResults() {
           isCategoryPanelOpen={isCategoryPanelOpen}
           onCategoryCardSelect={handleOpenCategoryPage}
           onCategoryTabToggle={handleCategoryTabToggle}
+          onLogout={handleLogout}
+          onOpenCart={handleOpenProductsPage}
+          onOpenFavourites={handleOpenFavouritesPage}
+          onOpenNotifications={handleOpenNotificationsPage}
+          onOpenProfile={handleOpenProfilePage}
           onSearchChange={setSearchText}
           onSearchSubmit={applySearch}
           searchText={searchText}
+          userName={user?.name ?? 'Shopper'}
         />
 
         <section className="px-4 py-2 sm:px-6">

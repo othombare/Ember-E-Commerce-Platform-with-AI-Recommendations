@@ -7,6 +7,7 @@ import menCategory4 from '../../assets/categories/men/item-4.png'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
+import useAuthStore from '../../store/authStore'
 import { toCategoryRoute } from '../../utils/category'
 
 const categoryFilters = ['T-Shirts', 'Joggers', "Polo's", 'Shorts', 'All-Shirts', 'Cargoes', 'Active Wear', 'Hoodies & Jackets']
@@ -100,6 +101,8 @@ const listingProducts = Array.from({ length: 24 }, (_, index) => {
 
 function AllProducts() {
   const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
+  const logout = useAuthStore((state) => state.logout)
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
@@ -187,6 +190,27 @@ function AllProducts() {
     navigate(toCategoryRoute(categoryLabel))
   }
 
+  const handleLogout = () => {
+    logout()
+    navigate('/signin')
+  }
+
+  const handleOpenFavouritesPage = () => {
+    navigate('/favourites')
+  }
+
+  const handleOpenNotificationsPage = () => {
+    navigate('/notifications')
+  }
+
+  const handleOpenProfilePage = () => {
+    navigate('/my-profile')
+  }
+
+  const handleOpenProductsPage = () => {
+    navigate('/products')
+  }
+
   return (
     <main className="min-h-screen bg-[#3f3f42] px-2 py-5 text-[#202020] sm:px-5">
       <div className="mx-auto w-full max-w-[1260px] bg-white">
@@ -196,9 +220,15 @@ function AllProducts() {
           isCategoryPanelOpen={isCategoryPanelOpen}
           onCategoryCardSelect={handleOpenCategoryPage}
           onCategoryTabToggle={handleCategoryTabToggle}
+          onLogout={handleLogout}
+          onOpenCart={handleOpenProductsPage}
+          onOpenFavourites={handleOpenFavouritesPage}
+          onOpenNotifications={handleOpenNotificationsPage}
+          onOpenProfile={handleOpenProfilePage}
           onSearchChange={setSearchText}
           onSearchSubmit={openSearchResults}
           searchText={searchText}
+          userName={user?.name ?? 'Shopper'}
         />
 
         <section className="border-b border-[#e7e7e7] px-4 py-3 sm:px-6">

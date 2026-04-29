@@ -664,6 +664,18 @@ function Dashboard() {
     navigate(`/search-results?q=${encodeURIComponent(query)}`)
   }
 
+  const handleOpenFavouritesPage = () => {
+    navigate('/favourites')
+  }
+
+  const handleOpenNotificationsPage = () => {
+    navigate('/notifications')
+  }
+
+  const handleOpenProfilePage = () => {
+    navigate('/my-profile')
+  }
+
   return (
     <main className="min-h-screen bg-[#3f3f42] px-2 py-5 text-[#202020] sm:px-5">
       <div className="mx-auto w-full max-w-[1260px]">
@@ -673,9 +685,15 @@ function Dashboard() {
           isCategoryPanelOpen={isCategoryPanelOpen}
           onCategoryCardSelect={handleOpenCategoryPage}
           onCategoryTabToggle={handleCategoryTap}
+          onLogout={handleLogout}
+          onOpenCart={handleOpenProductsPage}
+          onOpenFavourites={handleOpenFavouritesPage}
+          onOpenNotifications={handleOpenNotificationsPage}
+          onOpenProfile={handleOpenProfilePage}
           onSearchChange={setHeaderSearchText}
           onSearchSubmit={handleHeaderSearchSubmit}
           searchText={headerSearchText}
+          userName={user?.name ?? 'Shopper'}
         />
 
         {detailProduct ? (
@@ -689,17 +707,6 @@ function Dashboard() {
             </section>
 
             <div className="bg-[#f4f3f1] px-2 pb-14 pt-7 sm:px-6">
-              <div className="mb-4 flex items-center justify-end gap-4">
-                <p className="text-[14px] text-[#666]">Hi, {user?.name ?? 'Shopper'}</p>
-                <button
-                  className="h-9 rounded-md bg-[#1f2125] px-3 text-[13px] font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-black"
-                  onClick={handleLogout}
-                  type="button"
-                >
-                  Logout
-                </button>
-              </div>
-
               <section className="grid gap-2 lg:grid-cols-[1.02fr_1.48fr]">
                 <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
                   <img

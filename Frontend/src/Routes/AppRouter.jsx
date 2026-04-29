@@ -7,6 +7,9 @@ import ForgotPassword from '../pages/authentication/ForgetPassword'
 import Dashboard from '../pages/dashboard/Dashboard'
 import AllProducts from '../pages/products/AllProducts'
 import SearchResults from '../pages/products/SearchResults'
+import Favourites from '../pages/account/Favourites'
+import Notifications from '../pages/account/Notifications'
+import MyProfile from '../pages/account/MyProfile'
 
 function HomeRedirect() {
   const token = useAuthStore((state) => state.token)
@@ -28,7 +31,10 @@ function AppRouter() {
           <Route path="/products" element={<AllProducts />} />
           <Route path="/search-results" element={<SearchResults />} />
           <Route path="/category/:categoryName" element={<SearchResults />} />
-          <Route path="/account" element={<Navigate replace to="/dashboard" />} />
+          <Route path="/favourites" element={<Favourites />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/my-profile" element={<MyProfile />} />
+          <Route path="/account" element={<Navigate replace to="/my-profile" />} />
         </Route>
 
         <Route path="*" element={<HomeRedirect />} />
