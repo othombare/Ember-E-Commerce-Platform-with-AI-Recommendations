@@ -1,24 +1,70 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import streetWearImage from '../../assets/18f2e284f057c74506dbaac944391d40550e1bfc.png'
+import useAuthStore, { isTokenValid } from '../../store/authStore'
 
 const inputClassName =
   'h-11 w-full border border-[#c9c5bf] bg-[#f1efeb] px-4 text-[15px] text-[#3d3d3d] outline-none transition focus:border-[#6f6a64]'
+const SESSION_DURATION_MS = 60 * 60 * 1000
+
+function createDisplayName(email) {
+  const rawName = email.split('@')[0]?.replace(/[._-]+/g, ' ').trim()
+
+  if (!rawName) {
+    return 'Ember Shopper'
+  }
+
+  return rawName
+    .split(' ')
+    .filter(Boolean)
+    .map((namePart) => `${namePart.charAt(0).toUpperCase()}${namePart.slice(1)}`)
+    .join(' ')
+}
 
 function Signin() {
+  const navigate = useNavigate()
+  const token = useAuthStore((state) => state.token)
+  const tokenExpiresAt = useAuthStore((state) => state.tokenExpiresAt)
+  const login = useAuthStore((state) => state.login)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [apiStatus, setApiStatus] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  if (isTokenValid(token, tokenExpiresAt)) {
+    return <Navigate replace to="/dashboard" />
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setApiStatus('Checking API connection...')
+
+    if (!email || !password) {
+      setApiStatus('Please enter both email and password.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setApiStatus('Signing in and validating API connection...')
 
     try {
       const response = await api.get('/todos/1')
-      const todoTitle = response.data?.title || 'Dummy API responded successfully.'
-      setApiStatus(`Dummy API call succeeded: ${todoTitle}`)
+      const mockToken = `demo-token-${Date.now()}`
+      const user = {
+        id: response.data?.id ?? Date.now(),
+        email,
+        name: createDisplayName(email),
+      }
+
+      login({ user, token: mockToken, expiresAt: Date.now() + SESSION_DURATION_MS })
+
+      const todoTitle = response.data?.title || 'API responded successfully.'
+      setApiStatus(`Signed in successfully: ${todoTitle}`)
+      navigate('/dashboard')
     } catch (error) {
-      setApiStatus(`Dummy API call failed: ${error.message}`)
+      setApiStatus(`Sign in failed: ${error.message}`)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -44,15 +90,23 @@ function Signin() {
           >
             <label className="text-[19px] font-semibold text-[#4a4742]">
               Email
-              <input className={inputClassName} type="email" placeholder="Enter your email" />
+              <input
+                className={inputClassName}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="Enter your email"
+                type="email"
+                value={email}
+              />
             </label>
 
             <label className="text-[19px] font-semibold text-[#4a4742]">
               Password
               <input
                 className={inputClassName}
-                type="password"
+                onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter your password which you can remember"
+                type="password"
+                value={password}
               />
             </label>
 
@@ -68,9 +122,10 @@ function Signin() {
 
             <button
               className="mt-1 h-12 bg-[#262626] text-[18px] font-semibold text-white transition hover:bg-black"
+              disabled={isSubmitting}
               type="submit"
             >
-              Enter the Ember
+              {isSubmitting ? 'Signing In...' : 'Enter the Ember'}
             </button>
 
             <button

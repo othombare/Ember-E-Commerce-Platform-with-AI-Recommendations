@@ -1,4 +1,5 @@
 import axios from 'axios'
+import useAuthStore, { isTokenValid } from '../store/authStore'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://jsonplaceholder.typicode.com'
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT ?? 10000)
@@ -32,7 +33,14 @@ function createApiError(error) {
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken')
+    const { token, tokenExpiresAt, logout } = useAuthStore.getState()
+
+    if (!isTokenValid(token, tokenExpiresAt)) {
+      if (token) {
+        logout()
+      }
+      return config
+    }
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -49,7 +57,7 @@ api.interceptors.response.use(
     const apiError = createApiError(error)
 
     if (apiError.status === 401) {
-      localStorage.removeItem('accessToken')
+      useAuthStore.getState().logout()
     }
 
     return Promise.reject(apiError)
