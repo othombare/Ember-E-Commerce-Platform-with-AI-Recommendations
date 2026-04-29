@@ -102,8 +102,8 @@ function IconButton({ children, label }) {
   )
 }
 
-function CategoryStrip({ activeCategory, onCategoryChange }) {
-  const cards = categoryCatalog[activeCategory] ?? []
+function CategoryStrip({ activeCategory, isPanelOpen, onCategoryTap }) {
+  const cards = isPanelOpen && activeCategory ? categoryCatalog[activeCategory] ?? [] : []
 
   return (
     <section className="border border-[#dadada] bg-white">
@@ -111,7 +111,7 @@ function CategoryStrip({ activeCategory, onCategoryChange }) {
         <img alt="Ember logo" className="h-8 w-auto object-contain" src={emberLogo} />
         <nav className="hidden items-center gap-8 text-[17px] font-medium text-[#2e2e2e] lg:flex">
           {headerLinks.map((link) => {
-            const isActive = link === activeCategory
+            const isActive = isPanelOpen && link === activeCategory
             const isCategoryTab = categoryTabs.includes(link)
             return (
               <button
@@ -121,7 +121,7 @@ function CategoryStrip({ activeCategory, onCategoryChange }) {
                 key={link}
                 onClick={() => {
                   if (isCategoryTab) {
-                    onCategoryChange(link)
+                    onCategoryTap(link)
                   }
                 }}
                 type="button"
@@ -172,24 +172,26 @@ function CategoryStrip({ activeCategory, onCategoryChange }) {
         </div>
       </div>
 
-      <div className="border-t border-[#e5e5e5] px-4 pb-3 pt-3">
-        <div className="flex gap-5 overflow-x-auto pb-1">
-          {cards.map((card) => (
-            <article className="group min-w-[108px] cursor-pointer text-center" key={card.id}>
-              <div className="overflow-hidden rounded-[4px] border border-transparent transition duration-200 group-hover:-translate-y-1 group-hover:border-[#d2d2d2] group-hover:shadow-md">
-                <img
-                  alt={card.label}
-                  className="h-[160px] w-[108px] object-cover transition duration-300 group-hover:scale-105"
-                  src={card.image}
-                />
-              </div>
-              <p className="mt-2 text-[15px] font-medium text-[#303030] transition duration-200 group-hover:text-black">
-                {card.label}
-              </p>
-            </article>
-          ))}
+      {isPanelOpen ? (
+        <div className="border-t border-[#e5e5e5] px-4 pb-3 pt-3">
+          <div className="flex gap-5 overflow-x-auto pb-1">
+            {cards.map((card) => (
+              <article className="group min-w-[108px] cursor-pointer text-center" key={card.id}>
+                <div className="overflow-hidden rounded-[4px] border border-transparent transition duration-200 group-hover:-translate-y-1 group-hover:border-[#d2d2d2] group-hover:shadow-md">
+                  <img
+                    alt={card.label}
+                    className="h-[160px] w-[108px] object-cover transition duration-300 group-hover:scale-105"
+                    src={card.image}
+                  />
+                </div>
+                <p className="mt-2 text-[15px] font-medium text-[#303030] transition duration-200 group-hover:text-black">
+                  {card.label}
+                </p>
+              </article>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
     </section>
   )
 }
@@ -289,19 +291,36 @@ function Dashboard() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
-  const [activeCategory, setActiveCategory] = useState('Men')
+  const [activeCategory, setActiveCategory] = useState(null)
+  const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
     navigate('/signin')
   }
 
+  const handleCategoryTap = (category) => {
+    if (activeCategory === category && isCategoryPanelOpen) {
+      setIsCategoryPanelOpen(false)
+      return
+    }
+
+    setActiveCategory(category)
+    setIsCategoryPanelOpen(true)
+  }
+
   return (
     <main className="min-h-screen bg-[#3f3f42] px-2 py-5 text-[#202020] sm:px-5">
       <div className="mx-auto w-full max-w-[1260px]">
-        <CategoryStrip activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
+        <CategoryStrip
+          activeCategory={activeCategory}
+          isPanelOpen={isCategoryPanelOpen}
+          onCategoryTap={handleCategoryTap}
+        />
 
-        <section className="overflow-hidden border border-t-0 border-[#d2d2d2] bg-[#8b8e68]">
+        <section
+          className={`overflow-hidden border border-[#d2d2d2] bg-[#8b8e68] ${isCategoryPanelOpen ? 'border-t-0' : 'mt-2'}`}
+        >
           <img alt="Define your style with Ember" className="w-full object-cover" src={heroBanner} />
         </section>
 
