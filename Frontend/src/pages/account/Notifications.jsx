@@ -4,7 +4,9 @@ import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import useAuthStore from '../../store/authStore'
+import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
+import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
 const notifications = [
   { id: 'n-1', title: 'Your order has been shipped', time: '2 hours ago', status: 'New' },
@@ -17,6 +19,7 @@ function Notifications() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+  const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
@@ -31,8 +34,7 @@ function Notifications() {
   }
 
   const handleSearchSubmit = () => {
-    const query = searchText.trim() || 'cotton'
-    navigate(`/search-results?q=${encodeURIComponent(query)}`)
+    navigate(toSearchResultsRoute(searchText))
   }
 
   const handleCategoryTabToggle = (category) => {
@@ -45,17 +47,27 @@ function Notifications() {
     setIsCategoryPanelOpen(true)
   }
 
+  const handleHeaderNavSelect = (navId) => {
+    const route = getSpecialHeaderRoute(navId)
+    if (route) {
+      navigate(route)
+    }
+  }
+
   return (
     <main className="min-h-screen w-full bg-[#3f3f42] text-[#202020]">
       <div className="w-full min-h-screen bg-white">
         <StoreHeader
           activeCategory={activeCategory}
+          cartCount={cartItemCount}
           categoryCatalog={categoryCatalog}
           isCategoryPanelOpen={isCategoryPanelOpen}
           onCategoryCardSelect={handleOpenCategoryPage}
           onCategoryTabToggle={handleCategoryTabToggle}
+          onLogoClick={() => navigate('/dashboard')}
           onLogout={handleLogout}
-          onOpenCart={() => navigate('/products')}
+          onNavLinkSelect={handleHeaderNavSelect}
+          onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
           onOpenNotifications={() => navigate('/notifications')}
           onOpenProfile={() => navigate('/my-profile')}

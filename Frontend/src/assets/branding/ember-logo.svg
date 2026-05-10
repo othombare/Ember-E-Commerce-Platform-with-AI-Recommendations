@@ -1,0 +1,13 @@
+<svg width="240" height="56" viewBox="0 0 240 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="emberGlow" x1="4" y1="6" x2="52" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFB366"/>
+      <stop offset="0.55" stop-color="#F26A3F"/>
+      <stop offset="1" stop-color="#C83C26"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="6" width="48" height="44" rx="12" fill="url(#emberGlow)"/>
+  <path d="M17 18H39V23H23V28H37V33H23V38H39V43H17V18Z" fill="white"/>
+  <circle cx="44" cy="12" r="3" fill="#FFD57D"/>
+  <text x="64" y="39" fill="#1F1F1F" font-family="Georgia, Times New Roman, serif" font-size="34" font-weight="700" letter-spacing="1.2">EMBER</text>
+</svg>

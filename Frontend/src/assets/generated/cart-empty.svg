@@ -1,0 +1,24 @@
+<svg width="1000" height="700" viewBox="0 0 1000 700" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1000" y2="700" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F3EBDD"/>
+      <stop offset="1" stop-color="#E7D8C3"/>
+    </linearGradient>
+    <linearGradient id="bag" x1="350" y1="178" x2="665" y2="585" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3E2B20"/>
+      <stop offset="1" stop-color="#1F1814"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="700" rx="36" fill="url(#bg)"/>
+  <circle cx="760" cy="190" r="84" fill="#ffffff" fill-opacity="0.55"/>
+  <circle cx="258" cy="520" r="116" fill="#ffffff" fill-opacity="0.46"/>
+  <path d="M390 250C390 183 443 130 510 130C577 130 630 183 630 250V270H578V250C578 212 548 182 510 182C472 182 442 212 442 250V270H390V250Z" fill="#99755D"/>
+  <rect x="330" y="250" width="360" height="360" rx="42" fill="url(#bag)"/>
+  <rect x="360" y="286" width="300" height="290" rx="28" fill="#F6EFE6"/>
+  <rect x="380" y="310" width="260" height="10" rx="5" fill="#D1BCA4"/>
+  <rect x="380" y="344" width="260" height="10" rx="5" fill="#D1BCA4"/>
+  <rect x="380" y="378" width="210" height="10" rx="5" fill="#D1BCA4"/>
+  <circle cx="620" cy="516" r="56" fill="#3E2B20"/>
+  <path d="M597 516L613 532L645 500" stroke="#F6EFE6" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="124" y="662" fill="#6F5240" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700">Your cart is ready for checkout</text>
+</svg>

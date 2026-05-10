@@ -27,22 +27,24 @@ import kidsCategory6 from '../../assets/categories/kids/item-6.png'
 import kidsCategory7 from '../../assets/categories/kids/item-7.png'
 import kidsCategory8 from '../../assets/categories/kids/item-8.png'
 import kidsCategory9 from '../../assets/categories/kids/item-9.png'
-import emberLogo from '../../assets/home/ember-logo.png'
+import emberLogo from '../../assets/branding/ember-logo.svg'
 import heroBanner from '../../assets/home/hero-banner.png'
 import mensCollectionBanner from '../../assets/home/mens-collection.png'
 import productImageOne from '../../assets/home/product-1.png'
 import productImageTwo from '../../assets/home/product-2.png'
 import productImageThree from '../../assets/home/product-3.png'
 import productImageFour from '../../assets/home/product-4.png'
-import promoBottom from '../../assets/home/promo-bottom.png'
-import promoCenter from '../../assets/home/promo-center.png'
-import promoLeft from '../../assets/home/promo-left.png'
-import promoRight from '../../assets/home/promo-right.png'
+import genzHero from '../../assets/generated/genz-hero.svg'
+import newCollectionsHero from '../../assets/generated/new-collections-hero.svg'
+import aiRecommendationsHero from '../../assets/generated/ai-recommendations-hero.svg'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog as sharedCategoryCatalog } from '../../data/categoryCatalog'
+import { dashboardProducts } from '../../data/curatedProducts'
 import useAuthStore from '../../store/authStore'
+import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
+import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
 const headerLinks = ['Men', 'Women', 'Kids', 'GenZ', 'New Collections', 'Ai Recommendation']
 const categoryTabs = ['Men', 'Women', 'Kids']
@@ -83,15 +85,33 @@ const categoryCatalog = {
   ],
 }
 
-const allProducts = [
-  { id: 'linen-orchid-1', image: productImageOne, name: 'Cotton Linen Stripes: Orchid', type: 'All-Shirts' },
-  { id: 'linen-orchid-2', image: productImageTwo, name: 'Cotton Linen Stripes: Orchid', type: 'All-Shirts' },
-  { id: 'linen-orchid-3', image: productImageThree, name: 'Cotton Linen Stripes: Orchid', type: 'All-Shirts' },
-  { id: 'linen-orchid-4', image: productImageFour, name: 'Cotton Linen Stripes: Orchid', type: 'All-Shirts' },
+const allProducts = dashboardProducts.newArrivals
+const featuredProducts = dashboardProducts.featured
+const recommendedProducts = dashboardProducts.recommended
+const emberFavoriteProducts = dashboardProducts.emberFavorites
+const dashboardFocusCards = [
+  {
+    id: 'genz',
+    image: genzHero,
+    route: '/genz',
+    title: 'GenZ',
+    description: 'Trend-first streetwear built for everyday confidence.',
+  },
+  {
+    id: 'new-collections',
+    image: newCollectionsHero,
+    route: '/new-collections',
+    title: 'New Collections',
+    description: 'Fresh seasonal launches crafted for elevated everyday style.',
+  },
+  {
+    id: 'ai-recommendations',
+    image: aiRecommendationsHero,
+    route: '/ai-recommendations',
+    title: 'AI Recommendations',
+    description: 'Personalized looks matched to your fit, budget, and taste.',
+  },
 ]
-
-const featuredProducts = [allProducts[0], allProducts[3], allProducts[2], allProducts[1]]
-const recommendedProducts = [allProducts[0], allProducts[1], allProducts[2], allProducts[3]]
 
 function IconButton({ children, label }) {
   return (
@@ -626,10 +646,10 @@ function Dashboard() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+  const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const [headerSearchText, setHeaderSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
-  const [detailProduct, setDetailProduct] = useState(null)
 
   const handleLogout = () => {
     logout()
@@ -647,12 +667,15 @@ function Dashboard() {
   }
 
   const handleOpenDetails = (product) => {
-    setDetailProduct(product)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    navigate(`/product/${product.id}`)
   }
 
   const handleOpenProductsPage = () => {
     navigate('/products')
+  }
+
+  const handleOpenCartPage = () => {
+    navigate('/my-cart')
   }
 
   const handleOpenCategoryPage = (categoryLabel) => {
@@ -660,8 +683,14 @@ function Dashboard() {
   }
 
   const handleHeaderSearchSubmit = () => {
-    const query = headerSearchText.trim() || 'cotton'
-    navigate(`/search-results?q=${encodeURIComponent(query)}`)
+    navigate(toSearchResultsRoute(headerSearchText))
+  }
+
+  const handleHeaderNavSelect = (navId) => {
+    const route = getSpecialHeaderRoute(navId)
+    if (route) {
+      navigate(route)
+    }
   }
 
   const handleOpenFavouritesPage = () => {
@@ -681,12 +710,15 @@ function Dashboard() {
       <div className="w-full min-h-screen">
         <StoreHeader
           activeCategory={activeCategory}
+          cartCount={cartItemCount}
           categoryCatalog={sharedCategoryCatalog}
           isCategoryPanelOpen={isCategoryPanelOpen}
           onCategoryCardSelect={handleOpenCategoryPage}
           onCategoryTabToggle={handleCategoryTap}
+          onLogoClick={() => navigate('/dashboard')}
           onLogout={handleLogout}
-          onOpenCart={handleOpenProductsPage}
+          onNavLinkSelect={handleHeaderNavSelect}
+          onOpenCart={handleOpenCartPage}
           onOpenFavourites={handleOpenFavouritesPage}
           onOpenNotifications={handleOpenNotificationsPage}
           onOpenProfile={handleOpenProfilePage}
@@ -696,10 +728,7 @@ function Dashboard() {
           userName={user?.name ?? 'Shopper'}
         />
 
-        {detailProduct ? (
-          <ProductDetailView onBack={() => setDetailProduct(null)} onOpenDetails={handleOpenDetails} product={detailProduct} />
-        ) : (
-          <>
+        <>
             <section
               className={`overflow-hidden border border-[#d2d2d2] bg-[#8b8e68] ${isCategoryPanelOpen ? 'border-t-0' : 'mt-2'}`}
             >
@@ -707,38 +736,40 @@ function Dashboard() {
             </section>
 
             <div className="bg-[#f4f3f1] px-2 pb-14 pt-7 sm:px-6">
-              <section className="grid gap-2 lg:grid-cols-[1.02fr_1.48fr]">
-                <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
-                  <img
-                    alt="Ugadi sale banner"
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                    src={promoLeft}
-                  />
+              <section>
+                <div className="mb-4 flex items-end justify-between">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.24em] text-[#7a7a7a]">Explore Ember</p>
+                    <h2 className="mt-1 text-[32px] font-semibold text-[#1f1f1f]">Shop by Intent</h2>
+                  </div>
+                  <p className="text-[13px] text-[#666]">Three focused paths for faster discovery.</p>
                 </div>
-                <div className="grid gap-2">
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
+                <div className="grid gap-3 lg:grid-cols-3">
+                  {dashboardFocusCards.map((card) => (
+                    <article
+                      className="group cursor-pointer overflow-hidden border border-[#d0d0d0] bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                      key={card.id}
+                      onClick={() => navigate(card.route)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          navigate(card.route)
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                    >
                       <img
-                        alt="Special edition hoodie banner"
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                        src={promoCenter}
+                        alt={`${card.title} banner`}
+                        className="aspect-[16/9] w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                        src={card.image}
                       />
-                    </div>
-                    <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
-                      <img
-                        alt="Autumn offer banner"
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                        src={promoRight}
-                      />
-                    </div>
-                  </div>
-                  <div className="group overflow-hidden border border-[#d0d0d0] transition duration-200 hover:shadow-lg">
-                    <img
-                      alt="New knits banner"
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                      src={promoBottom}
-                    />
-                  </div>
+                      <div className="border-t border-[#ececec] px-3 py-3">
+                        <h3 className="text-[20px] font-semibold text-[#262626]">{card.title}</h3>
+                        <p className="mt-1 text-[13px] text-[#676767]">{card.description}</p>
+                      </div>
+                    </article>
+                  ))}
                 </div>
               </section>
 
@@ -772,10 +803,9 @@ function Dashboard() {
                 subtitle="* AI Powered Recommendations"
                 title="Recommended for You"
               />
-              <ProductSection onOpenDetails={handleOpenDetails} products={recommendedProducts} title="Ember's Favorite" />
+              <ProductSection onOpenDetails={handleOpenDetails} products={emberFavoriteProducts} title="Ember's Favorite" />
             </div>
           </>
-        )}
 
         <StoreFooter onCategorySelect={handleOpenCategoryPage} />
       </div>

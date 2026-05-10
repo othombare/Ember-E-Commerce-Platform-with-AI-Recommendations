@@ -1,12 +1,39 @@
+import { Link } from 'react-router-dom'
+
+const socialLinks = [
+  { id: 'in', label: 'in', href: 'https://www.linkedin.com' },
+  { id: 'ig', label: 'ig', href: 'https://www.instagram.com' },
+  { id: 'yt', label: 'yt', href: 'https://www.youtube.com' },
+  { id: 'x', label: 'x', href: 'https://x.com' },
+]
+
+const supportLinks = [
+  { id: 'faq', label: 'FAQ', to: '/support/faq' },
+  { id: 'shipping-returns', label: 'Shipping & Returns', to: '/support/shipping-returns' },
+  { id: 'size-guide', label: 'Size Guide', to: '/support/size-guide' },
+  { id: 'contact-us', label: 'Contact Us', to: '/support/contact-us' },
+]
+
 function StoreFooter({ onCategorySelect }) {
   const menCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', 'All Shirts', 'Cargoes', 'Active Wear', 'Hoodies & Jackets']
   const womenCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', "Saree's", 'Kurtas & Suits', 'Formals', 'Active Wear']
   const kidsCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', 'Jeans', 'Shirts', 'Formals', 'Party Wear']
 
+  const scrollToPageTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
+  }
+
   const renderCategoryAction = (category) => {
     if (typeof onCategorySelect === 'function') {
       return (
-        <button className="transition hover:text-white" onClick={() => onCategorySelect(category)} type="button">
+        <button
+          className="transition hover:text-white"
+          onClick={() => {
+            onCategorySelect(category)
+            scrollToPageTop()
+          }}
+          type="button"
+        >
           {category}
         </button>
       )
@@ -28,13 +55,16 @@ function StoreFooter({ onCategorySelect }) {
         <section>
           <h3 className="mb-5 font-serif text-[37px] text-white">Our Socials</h3>
           <div className="flex gap-3">
-            {['in', 'ig', 'yt', 'x'].map((social) => (
-              <span
+            {socialLinks.map((social) => (
+              <a
                 className="flex h-11 w-11 cursor-pointer items-center justify-center border border-[#8f8f8f] text-[15px] uppercase text-[#bababa] transition duration-200 hover:-translate-y-0.5 hover:border-white hover:text-white"
-                key={social}
+                href={social.href}
+                key={social.id}
+                rel="noreferrer"
+                target="_blank"
               >
-                {social}
-              </span>
+                {social.label}
+              </a>
             ))}
           </div>
         </section>
@@ -42,10 +72,17 @@ function StoreFooter({ onCategorySelect }) {
         <section>
           <h3 className="mb-5 font-serif text-[37px] text-white">Support</h3>
           <ul className="space-y-2 text-[17px] text-[#b6b6b6]">
-            <li>FAQ</li>
-            <li>Shipping & Returns</li>
-            <li>Size Guide</li>
-            <li>Contact Us</li>
+            {supportLinks.map((item) => (
+              <li key={item.id}>
+                <Link
+                  className="transition hover:text-white"
+                  onClick={scrollToPageTop}
+                  to={item.to}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
 

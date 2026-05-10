@@ -1,28 +1,43 @@
-import emberLogo from '../../assets/home/ember-logo.png'
+import emberLogo from '../../assets/branding/ember-logo.svg'
 
-const headerLinks = ['Men', 'Women', 'Kids', 'GenZ', 'New Collections', 'Ai Recommendation']
-const categoryTabs = ['Men', 'Women', 'Kids']
+const headerLinks = [
+  { id: 'Men', label: 'Men', isCategoryTab: true },
+  { id: 'Women', label: 'Women', isCategoryTab: true },
+  { id: 'Kids', label: 'Kids', isCategoryTab: true },
+  { id: 'genz', label: 'GenZ', isCategoryTab: false },
+  { id: 'new-collections', label: 'New Collections', isCategoryTab: false },
+  { id: 'ai-recommendations', label: 'AI Recommendation', isCategoryTab: false },
+]
 
-function IconButton({ children, label, onClick }) {
+function IconButton({ badge = null, children, label, onClick }) {
   return (
     <button
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-[#1f1f1f] transition duration-200 hover:-translate-y-0.5 hover:border-[#cfcfcf] hover:bg-[#f3f3f3]"
+      className="relative flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-[#1f1f1f] transition duration-200 hover:-translate-y-0.5 hover:border-[#cfcfcf] hover:bg-[#f3f3f3]"
       onClick={onClick}
       type="button"
     >
       {children}
+      {badge ? (
+        <span className="absolute -right-1 -top-1 min-w-4 rounded-full bg-[#1f2125] px-1 text-center text-[10px] font-semibold text-white">
+          {badge}
+        </span>
+      ) : null}
     </button>
   )
 }
 
 function StoreHeader({
   activeCategory = null,
+  activeNavLink = '',
+  cartCount = 0,
   categoryCatalog = {},
   isCategoryPanelOpen = false,
   onCategoryCardSelect,
   onCategoryTabToggle,
+  onLogoClick,
   onLogout,
+  onNavLinkSelect,
   onOpenCart,
   onOpenFavourites,
   onOpenNotifications,
@@ -50,26 +65,38 @@ function StoreHeader({
   return (
     <section className="border border-[#dadada] bg-white">
       <div className="flex items-center gap-4 px-6 py-3">
-        <img alt="Ember logo" className="h-8 w-auto object-contain" src={emberLogo} />
+        {typeof onLogoClick === 'function' ? (
+          <button className="shrink-0" onClick={onLogoClick} type="button">
+            <img alt="Ember logo" className="h-8 w-auto object-contain" src={emberLogo} />
+          </button>
+        ) : (
+          <img alt="Ember logo" className="h-8 w-auto object-contain" src={emberLogo} />
+        )}
         <nav className="hidden items-center gap-8 text-[17px] font-medium text-[#2e2e2e] lg:flex">
           {headerLinks.map((link) => {
-            const isActive = isCategoryPanelOpen && link === activeCategory
-            const isCategoryTab = categoryTabs.includes(link)
+            const isActive = link.isCategoryTab
+              ? isCategoryPanelOpen && link.label === activeCategory
+              : activeNavLink === link.id
 
             return (
               <button
                 className={`${
                   isActive ? 'text-black' : 'text-[#2e2e2e]'
                 } relative transition duration-200 hover:text-black after:absolute after:-bottom-1 after:left-0 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-[#1f1f1f] after:transition-transform after:duration-200 hover:after:scale-x-100`}
-                key={link}
+                key={link.id}
                 onClick={() => {
-                  if (isCategoryTab && typeof onCategoryTabToggle === 'function') {
-                    onCategoryTabToggle(link)
+                  if (link.isCategoryTab && typeof onCategoryTabToggle === 'function') {
+                    onCategoryTabToggle(link.label)
+                    return
+                  }
+
+                  if (!link.isCategoryTab && typeof onNavLinkSelect === 'function') {
+                    onNavLinkSelect(link.id)
                   }
                 }}
                 type="button"
               >
-                {link}
+                {link.label}
               </button>
             )
           })}
@@ -121,7 +148,7 @@ function StoreHeader({
             </svg>
           </IconButton>
 
-          <IconButton label="Cart" onClick={onOpenCart}>
+          <IconButton badge={cartCount > 0 ? String(Math.min(cartCount, 99)) : null} label="Cart" onClick={onOpenCart}>
             <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
               <circle cx="9" cy="20" r="1.5" />
               <circle cx="18" cy="20" r="1.5" />

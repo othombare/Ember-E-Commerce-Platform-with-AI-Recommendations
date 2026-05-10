@@ -3,35 +3,19 @@ import { useNavigate } from 'react-router-dom'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
-import { allCatalogProducts } from '../../data/curatedProducts'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
-function Favourites() {
+function SupportPageTemplate({ intro, points, title }) {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
-  const addToCart = useCartStore((state) => state.addToCart)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
-  const favouriteItems = allCatalogProducts.slice(0, 6)
-
-  const handleLogout = () => {
-    logout()
-    navigate('/signin')
-  }
-
-  const handleOpenCategoryPage = (categoryLabel) => {
-    navigate(toCategoryRoute(categoryLabel))
-  }
-
-  const handleSearchSubmit = () => {
-    navigate(toSearchResultsRoute(searchText))
-  }
 
   const handleCategoryTabToggle = (category) => {
     if (activeCategory === category && isCategoryPanelOpen) {
@@ -43,6 +27,10 @@ function Favourites() {
     setIsCategoryPanelOpen(true)
   }
 
+  const handleOpenCategoryPage = (categoryLabel) => {
+    navigate(toCategoryRoute(categoryLabel))
+  }
+
   const handleHeaderNavSelect = (navId) => {
     const route = getSpecialHeaderRoute(navId)
     if (route) {
@@ -50,9 +38,18 @@ function Favourites() {
     }
   }
 
+  const handleLogout = () => {
+    logout()
+    navigate('/signin')
+  }
+
+  const handleSearchSubmit = () => {
+    navigate(toSearchResultsRoute(searchText))
+  }
+
   return (
     <main className="min-h-screen w-full bg-[#3f3f42] text-[#202020]">
-      <div className="w-full min-h-screen bg-white">
+      <div className="w-full min-h-screen bg-[#f4f3f1]">
         <StoreHeader
           activeCategory={activeCategory}
           cartCount={cartItemCount}
@@ -73,35 +70,20 @@ function Favourites() {
           userName={user?.name ?? 'Shopper'}
         />
 
-        <section className="px-5 py-5 sm:px-8 sm:py-7">
-          <div className="flex items-center justify-between border-b border-[#ececec] pb-3">
-            <h1 className="text-[34px] font-semibold text-[#222]">Favourites</h1>
-            <p className="text-[12px] text-[#8a8a8a]">{favouriteItems.length} saved items</p>
-          </div>
+        <section className="px-4 py-6 sm:px-6 sm:py-8">
+          <article className="rounded-lg border border-[#dddddd] bg-white p-5 sm:p-7">
+            <p className="text-[12px] uppercase tracking-[0.18em] text-[#8d8d8d]">Support Center</p>
+            <h1 className="mt-2 text-[34px] font-semibold text-[#232323]">{title}</h1>
+            <p className="mt-3 text-[15px] leading-relaxed text-[#5f5f5f]">{intro}</p>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {favouriteItems.map((item) => (
-              <article className="border border-[#dfdfdf] bg-white p-2" key={item.id}>
-                <button className="w-full text-left" onClick={() => navigate(`/product/${item.id}`)} type="button">
-                  <img alt={item.name} className="h-[230px] w-full object-cover" src={item.image} />
-                  <h2 className="mt-2 truncate text-[12px] text-[#343434]">{item.name}</h2>
-                </button>
-                <p className="mt-1 text-[14px] font-semibold text-[#222]">Rs {item.price}</p>
-                <div className="mt-2 flex gap-2">
-                  <button className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]" type="button">
-                    Remove
-                  </button>
-                  <button
-                    className="bg-[#1f2125] px-2 py-1 text-[11px] text-white transition hover:bg-black"
-                    onClick={() => addToCart({ product: item, quantity: 1, size: item.sizes?.[0] ?? 'M' })}
-                    type="button"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
+            <ul className="mt-5 space-y-3">
+              {points.map((point) => (
+                <li className="rounded-md border border-[#ebebeb] bg-[#faf9f7] px-4 py-3 text-[14px] text-[#4b4b4b]" key={point}>
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </article>
         </section>
 
         <StoreFooter onCategorySelect={handleOpenCategoryPage} />
@@ -110,4 +92,4 @@ function Favourites() {
   )
 }
 
-export default Favourites
+export default SupportPageTemplate

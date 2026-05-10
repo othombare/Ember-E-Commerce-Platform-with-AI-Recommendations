@@ -1,14 +1,13 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import menCategory1 from '../../assets/categories/men/item-1.png'
-import menCategory2 from '../../assets/categories/men/item-2.png'
-import menCategory3 from '../../assets/categories/men/item-3.png'
-import menCategory4 from '../../assets/categories/men/item-4.png'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
+import { allCatalogProducts } from '../../data/curatedProducts'
 import useAuthStore from '../../store/authStore'
+import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
+import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
 const categoryFilters = ['T-Shirts', 'Joggers', "Polo's", 'Shorts', 'All-Shirts', 'Cargoes', 'Active Wear', 'Hoodies & Jackets']
 const sizeFilters = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL']
@@ -31,78 +30,14 @@ const sortOptions = [
   { id: 'price-high-low', label: 'Price High to Low' },
 ]
 
-const baseProducts = [
-  {
-    image: menCategory1,
-    name: 'Cotton Linen Stripes: Orchid',
-    category: 'All-Shirts',
-    price: 599,
-    oldPrice: 999,
-    rating: 4.8,
-    reviews: 324,
-    sold: 161,
-    isNew: true,
-    sizes: ['S', 'M', 'L', 'XL'],
-  },
-  {
-    image: menCategory2,
-    name: 'Cotton Linen Beige: Orchid',
-    category: 'T-Shirts',
-    price: 599,
-    oldPrice: 999,
-    rating: 4.6,
-    reviews: 285,
-    sold: 220,
-    isNew: true,
-    sizes: ['XS', 'S', 'M', 'L'],
-  },
-  {
-    image: menCategory3,
-    name: 'Cotton Linen Night Sky: Orchid',
-    category: "Polo's",
-    price: 599,
-    oldPrice: 999,
-    rating: 4.7,
-    reviews: 190,
-    sold: 243,
-    isNew: false,
-    sizes: ['M', 'L', 'XL', '2XL'],
-  },
-  {
-    image: menCategory4,
-    name: 'Cotton Linen Monochrome: Orchid',
-    category: 'Joggers',
-    price: 599,
-    oldPrice: 999,
-    rating: 4.5,
-    reviews: 144,
-    sold: 132,
-    isNew: false,
-    sizes: ['S', 'M', 'L', 'XL', '2XL'],
-  },
-]
-
-const listingProducts = Array.from({ length: 24 }, (_, index) => {
-  const source = baseProducts[index % baseProducts.length]
-  const extraPrice = [0, 70, 120, 180][index % 4]
-  const normalizedPrice = source.price + extraPrice
-
-  return {
-    ...source,
-    id: `listing-${index + 1}`,
-    price: normalizedPrice,
-    oldPrice: normalizedPrice + 400,
-    rating: Number((source.rating - ((index + 1) % 3) * 0.1).toFixed(1)),
-    reviews: source.reviews + index * 9,
-    sold: source.sold + index * 11,
-    isNew: source.isNew || index < 6,
-  }
-})
+const listingProducts = allCatalogProducts
 
 function AllProducts() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
+  const addToCart = useCartStore((state) => state.addToCart)
+  const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
@@ -116,7 +51,13 @@ function AllProducts() {
   const sortLabel = sortOptions.find((option) => option.id === selectedSort)?.label ?? 'All'
 
   const filteredProducts = useMemo(() => {
-    let items = listingProducts.filter((item) => item.name.toLowerCase().includes(searchText.toLowerCase().trim()))
+    const normalizedSearch = searchText.toLowerCase().trim()
+    let items = listingProducts.filter((item) =>
+      [item.name, item.category]
+        .join(' ')
+        .toLowerCase()
+        .includes(normalizedSearch),
+    )
 
     if (selectedCategories.length > 0) {
       items = items.filter((item) => selectedCategories.includes(item.category))
@@ -172,8 +113,7 @@ function AllProducts() {
   }
 
   const openSearchResults = () => {
-    const query = searchText.trim() || 'cotton'
-    navigate(`/search-results?q=${encodeURIComponent(query)}`)
+    navigate(toSearchResultsRoute(searchText))
   }
 
   const handleCategoryTabToggle = (category) => {
@@ -207,8 +147,19 @@ function AllProducts() {
     navigate('/my-profile')
   }
 
-  const handleOpenProductsPage = () => {
-    navigate('/products')
+  const handleOpenCartPage = () => {
+    navigate('/my-cart')
+  }
+
+  const handleHeaderNavSelect = (navId) => {
+    const route = getSpecialHeaderRoute(navId)
+    if (route) {
+      navigate(route)
+    }
+  }
+
+  const handleAddToCart = (product) => {
+    addToCart({ product, quantity: 1, size: product.sizes?.[0] ?? 'M' })
   }
 
   return (
@@ -216,12 +167,15 @@ function AllProducts() {
       <div className="w-full min-h-screen bg-white">
         <StoreHeader
           activeCategory={activeCategory}
+          cartCount={cartItemCount}
           categoryCatalog={categoryCatalog}
           isCategoryPanelOpen={isCategoryPanelOpen}
           onCategoryCardSelect={handleOpenCategoryPage}
           onCategoryTabToggle={handleCategoryTabToggle}
+          onLogoClick={() => navigate('/dashboard')}
           onLogout={handleLogout}
-          onOpenCart={handleOpenProductsPage}
+          onNavLinkSelect={handleHeaderNavSelect}
+          onOpenCart={handleOpenCartPage}
           onOpenFavourites={handleOpenFavouritesPage}
           onOpenNotifications={handleOpenNotificationsPage}
           onOpenProfile={handleOpenProfilePage}
@@ -383,6 +337,15 @@ function AllProducts() {
                 <article
                   className="group border border-[#dfdfdf] bg-white transition duration-200 hover:-translate-y-0.5 hover:border-[#bbbbbb] hover:shadow-lg"
                   key={product.id}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      navigate(`/product/${product.id}`)
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="relative overflow-hidden">
                     <span className="absolute left-1 top-1 z-10 bg-white/90 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-[#8a8a8a]">
@@ -405,6 +368,28 @@ function AllProducts() {
                     <p className="mt-1 text-[10px] text-[#6c6c6c]">
                       <span className="text-[#d8ad2e]">*</span> {product.rating} ({product.reviews})
                     </p>
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        className="flex-1 border border-[#cfcfcf] py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          navigate(`/product/${product.id}`)
+                        }}
+                        type="button"
+                      >
+                        View
+                      </button>
+                      <button
+                        className="flex-1 bg-[#1f2125] py-1 text-[11px] text-white transition hover:bg-black"
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          handleAddToCart(product)
+                        }}
+                        type="button"
+                      >
+                        Add
+                      </button>
+                    </div>
                   </div>
                 </article>
               ))}
