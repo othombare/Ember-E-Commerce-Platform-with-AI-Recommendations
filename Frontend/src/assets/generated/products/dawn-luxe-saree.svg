@@ -1,0 +1,20 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='900' height='1200' viewBox='0 0 900 1200'>
+  <defs>
+    <linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='#FFF4EA'/>
+      <stop offset='100%' stop-color='#FFDCC1'/>
+    </linearGradient>
+  </defs>
+  <rect width='900' height='1200' fill='url(#bg)'/>
+  <rect x='64' y='86' width='772' height='1028' rx='36' fill='white' opacity='0.19'/>
+  <ellipse cx='450' cy='1065' rx='210' ry='36' fill='#000' opacity='0.09'/>
+  <path d='M306 356 C306 285 371 240 450 240 C529 240 594 285 594 356 L594 785 C594 856 529 901 450 901 C371 901 306 856 306 785 Z' fill='#6E3D2C'/>
+  <path d='M306 469 L210 575 C188 598 182 636 193 670 C206 707 241 729 275 729 L306 729 Z' fill='#6E3D2C'/>
+  <path d='M594 469 L690 575 C712 598 718 636 707 670 C694 707 659 729 625 729 L594 729 Z' fill='#6E3D2C'/>
+  <path d='M356 245 C356 209 398 180 450 180 C502 180 544 209 544 245 L544 286 C544 299 534 309 521 309 L379 309 C366 309 356 299 356 286 Z' fill='#E17D56'/>
+  <rect x='332' y='518' width='235' height='11' rx='5' fill='white' opacity='0.54'/>
+  <rect x='332' y='554' width='197' height='10' rx='5' fill='white' opacity='0.44'/>
+  <rect x='252' y='956' width='396' height='136' rx='20' fill='white' opacity='0.84'/>
+  <text x='450' y='1018' font-family='Segoe UI, Arial, sans-serif' text-anchor='middle' font-size='33' font-weight='700' fill='#6E3D2C'>Dawn Luxe Saree</text>
+  <text x='450' y='1062' font-family='Segoe UI, Arial, sans-serif' text-anchor='middle' font-size='21' fill='#6E3D2C' opacity='0.78'>Handcrafted Demo Visual</text>
+</svg>
