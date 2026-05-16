@@ -1,4 +1,4 @@
-import newCollectionsHero from '../../assets/generated/new-collections-hero.svg'
+import newCollectionsHero from '../../assets/generated/new-collections-hero.png'
 import { newCollectionProducts } from '../../data/curatedProducts'
 import CollectionPageTemplate from './CollectionPageTemplate'
 

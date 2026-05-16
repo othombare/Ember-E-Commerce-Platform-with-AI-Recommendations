@@ -1,0 +1,25 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='900' height='1200' viewBox='0 0 900 1200'>
+  <defs>
+    <linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0%' stop-color='#F8EEFF'/>
+      <stop offset='100%' stop-color='#DEC8F5'/>
+    </linearGradient>
+    <filter id='soft'>
+      <feGaussianBlur stdDeviation='2'/>
+    </filter>
+  </defs>
+  <rect width='900' height='1200' fill='url(#bg)'/>
+  <circle cx='710' cy='210' r='170' fill='#9365C8' opacity='0.2'/>
+  <circle cx='180' cy='1030' r='230' fill='#9365C8' opacity='0.14'/>
+  <rect x='278' y='120' width='344' height='86' rx='22' fill='white' opacity='0.74'/>
+  <text x='450' y='176' font-family='Segoe UI, Arial, sans-serif' text-anchor='middle' font-size='40' font-weight='700' fill='#47315E'>EMBER</text>
+  <path d='M315 358 C315 292 371 250 450 250 C529 250 585 292 585 358 L585 775 C585 841 529 882 450 882 C371 882 315 841 315 775 Z' fill='#47315E'/>
+  <path d='M315 458 L222 560 C198 585 190 626 202 662 C213 695 242 718 274 718 L315 718 Z' fill='#47315E'/>
+  <path d='M585 458 L678 560 C702 585 710 626 698 662 C687 695 658 718 626 718 L585 718 Z' fill='#47315E'/>
+  <path d='M355 252 C355 215 395 184 450 184 C505 184 545 215 545 252 L545 286 C545 300 534 311 520 311 L380 311 C366 311 355 300 355 286 Z' fill='#9365C8'/>
+  <rect x='332' y='516' width='236' height='12' rx='6' fill='white' opacity='0.55'/>
+  <rect x='332' y='552' width='208' height='10' rx='5' fill='white' opacity='0.45'/>
+  <rect x='254' y='962' width='392' height='126' rx='20' fill='white' opacity='0.8'/>
+  <text x='450' y='1020' font-family='Segoe UI, Arial, sans-serif' text-anchor='middle' font-size='34' font-weight='700' fill='#47315E'>City Partywear</text>
+  <text x='450' y='1060' font-family='Segoe UI, Arial, sans-serif' text-anchor='middle' font-size='22' fill='#47315E' opacity='0.78'>Premium Demo Product</text>
+</svg>

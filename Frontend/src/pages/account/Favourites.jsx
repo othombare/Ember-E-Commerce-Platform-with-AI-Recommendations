@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
@@ -6,8 +6,11 @@ import { categoryCatalog } from '../../data/categoryCatalog'
 import { allCatalogProducts } from '../../data/curatedProducts'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
+import useFavouritesStore from '../../store/favouritesStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+
+const productLookup = new Map(allCatalogProducts.map((item) => [item.id, item]))
 
 function Favourites() {
   const navigate = useNavigate()
@@ -15,10 +18,16 @@ function Favourites() {
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
+  const favouriteProductIds = useFavouritesStore((state) => state.favouriteProductIds)
+  const removeFromFavourites = useFavouritesStore((state) => state.removeFromFavourites)
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
-  const favouriteItems = allCatalogProducts.slice(0, 6)
+
+  const favouriteItems = useMemo(
+    () => favouriteProductIds.map((productId) => productLookup.get(productId)).filter(Boolean),
+    [favouriteProductIds],
+  )
 
   const handleLogout = () => {
     logout()
@@ -88,7 +97,11 @@ function Favourites() {
                 </button>
                 <p className="mt-1 text-[14px] font-semibold text-[#222]">Rs {item.price}</p>
                 <div className="mt-2 flex gap-2">
-                  <button className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]" type="button">
+                  <button
+                    className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]"
+                    onClick={() => removeFromFavourites(item.id)}
+                    type="button"
+                  >
                     Remove
                   </button>
                   <button
@@ -102,6 +115,20 @@ function Favourites() {
               </article>
             ))}
           </div>
+
+          {favouriteItems.length === 0 ? (
+            <div className="mt-5 border border-[#dfdfdf] bg-[#faf9f7] p-6 text-center">
+              <h2 className="text-[22px] font-medium text-[#2b2b2b]">No saved favourites</h2>
+              <p className="mt-2 text-[13px] text-[#666]">Browse products and save your top picks here.</p>
+              <button
+                className="mt-4 bg-[#1f2125] px-4 py-2 text-[12px] text-white transition hover:bg-black"
+                onClick={() => navigate('/products')}
+                type="button"
+              >
+                Explore Products
+              </button>
+            </div>
+          ) : null}
         </section>
 
         <StoreFooter onCategorySelect={handleOpenCategoryPage} />

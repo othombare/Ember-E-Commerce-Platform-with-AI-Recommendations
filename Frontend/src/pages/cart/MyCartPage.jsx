@@ -6,6 +6,7 @@ import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
+import useOrdersStore from '../../store/ordersStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
@@ -16,6 +17,8 @@ function MyCartPage() {
   const cartItems = useCartStore((state) => state.items)
   const updateCartItemQuantity = useCartStore((state) => state.updateCartItemQuantity)
   const removeFromCart = useCartStore((state) => state.removeFromCart)
+  const clearCart = useCartStore((state) => state.clearCart)
+  const placeOrder = useOrdersStore((state) => state.placeOrder)
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
@@ -60,6 +63,28 @@ function MyCartPage() {
 
   const updateQuantity = (itemId, nextQuantity) => {
     updateCartItemQuantity(itemId, nextQuantity)
+  }
+
+  const handleProceedToCheckout = () => {
+    if (cartItems.length === 0) {
+      return
+    }
+
+    const orderId = placeOrder({
+      items: cartItems,
+      user,
+      subtotal,
+      shipping,
+      tax,
+      total,
+    })
+
+    if (!orderId) {
+      return
+    }
+
+    clearCart()
+    navigate('/my-profile')
   }
 
   return (
@@ -159,7 +184,11 @@ function MyCartPage() {
                     <span>Rs {total}</span>
                   </div>
                 </div>
-                <button className="mt-4 h-11 w-full rounded-md bg-[#1f2125] text-[14px] font-semibold text-white transition hover:bg-black" type="button">
+                <button
+                  className="mt-4 h-11 w-full rounded-md bg-[#1f2125] text-[14px] font-semibold text-white transition hover:bg-black"
+                  onClick={handleProceedToCheckout}
+                  type="button"
+                >
                   Proceed to Checkout
                 </button>
               </aside>

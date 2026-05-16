@@ -1,21 +1,54 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
+import useOrdersStore from '../../store/ordersStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+
+function formatOrderDate(dateValue) {
+  const date = new Date(dateValue)
+  if (Number.isNaN(date.getTime())) {
+    return 'Unknown date'
+  }
+
+  return new Intl.DateTimeFormat('en-IN', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)
+}
+
+function orderBelongsToUser(order, user) {
+  const userId = String(user?.id ?? '').trim()
+  const userEmail = String(user?.email ?? '').trim().toLowerCase()
+  const orderUserId = String(order?.user?.id ?? '').trim()
+  const orderUserEmail = String(order?.user?.email ?? '').trim().toLowerCase()
+
+  if (userId && orderUserId) {
+    return userId === orderUserId
+  }
+
+  if (userEmail && orderUserEmail) {
+    return userEmail === orderUserEmail
+  }
+
+  return false
+}
 
 function MyProfile() {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
+  const orders = useOrdersStore((state) => state.orders)
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
+
+  const myOrders = useMemo(() => orders.filter((order) => orderBelongsToUser(order, user)), [orders, user])
 
   const handleLogout = () => {
     logout()
@@ -110,6 +143,52 @@ function MyProfile() {
               </button>
             </article>
           </div>
+
+          <section className="mt-6 border border-[#e4e4e4] bg-white p-5">
+            <div className="flex items-center justify-between border-b border-[#ececec] pb-3">
+              <h2 className="text-[26px] font-medium text-[#222]">My Orders</h2>
+              <p className="text-[12px] text-[#7a7a7a]">{myOrders.length} order(s)</p>
+            </div>
+
+            {myOrders.length > 0 ? (
+              <div className="mt-4 space-y-4">
+                {myOrders.map((order) => (
+                  <article className="border border-[#e4e4e4] bg-[#faf9f7] p-4" key={order.id}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-[13px] font-semibold text-[#2f2f2f]">Order ID: {order.id}</p>
+                      <p className="text-[12px] text-[#666]">{formatOrderDate(order.createdAt)}</p>
+                    </div>
+                    <p className="mt-1 text-[12px] text-[#666]">Status: {order.status ?? 'Placed'}</p>
+                    <div className="mt-3 space-y-2">
+                      {order.items.map((item) => (
+                        <div className="flex items-center justify-between gap-3 text-[12px] text-[#444]" key={`${order.id}-${item.id}`}>
+                          <p className="truncate">
+                            {item.name} ({item.size}) x {item.quantity}
+                          </p>
+                          <p className="shrink-0 font-medium">Rs {item.price * item.quantity}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex items-center justify-between border-t border-[#e7e7e7] pt-2 text-[13px]">
+                      <p className="text-[#555]">Total items: {order.itemCount}</p>
+                      <p className="font-semibold text-[#1f1f1f]">Total: Rs {order.total}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-4 border border-[#ececec] bg-[#fafafa] p-4 text-center">
+                <p className="text-[14px] text-[#666]">No previous orders yet.</p>
+                <button
+                  className="mt-3 bg-[#1f2125] px-4 py-2 text-[12px] text-white transition hover:bg-black"
+                  onClick={() => navigate('/products')}
+                  type="button"
+                >
+                  Start Shopping
+                </button>
+              </div>
+            )}
+          </section>
         </section>
 
         <StoreFooter onCategorySelect={handleOpenCategoryPage} />

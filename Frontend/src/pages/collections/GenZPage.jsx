@@ -1,4 +1,4 @@
-import genzHero from '../../assets/generated/genz-hero.svg'
+import genzHero from '../../assets/generated/genz-hero.png'
 import { genzProducts } from '../../data/curatedProducts'
 import CollectionPageTemplate from './CollectionPageTemplate'
 

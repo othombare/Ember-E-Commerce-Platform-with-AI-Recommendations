@@ -1,4 +1,4 @@
-import aiRecommendationsHero from '../../assets/generated/ai-recommendations-hero.svg'
+import aiRecommendationsHero from '../../assets/generated/ai-recommendations-hero.png'
 import { aiRecommendationProducts } from '../../data/curatedProducts'
 import CollectionPageTemplate from './CollectionPageTemplate'
 
