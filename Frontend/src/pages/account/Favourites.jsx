@@ -3,17 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
-import { allCatalogProducts } from '../../data/curatedProducts'
+import useCatalogProducts from '../../hooks/useCatalogProducts'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import useFavouritesStore from '../../store/favouritesStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
-const productLookup = new Map(allCatalogProducts.map((item) => [item.id, item]))
-
 function Favourites() {
   const navigate = useNavigate()
+  const { products } = useCatalogProducts()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
@@ -23,10 +22,11 @@ function Favourites() {
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
+  const productLookup = useMemo(() => new Map(products.map((item) => [item.id, item])), [products])
 
   const favouriteItems = useMemo(
     () => favouriteProductIds.map((productId) => productLookup.get(productId)).filter(Boolean),
-    [favouriteProductIds],
+    [favouriteProductIds, productLookup],
   )
 
   const handleLogout = () => {

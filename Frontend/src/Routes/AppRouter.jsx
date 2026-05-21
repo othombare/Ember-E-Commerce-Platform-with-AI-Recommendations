@@ -16,6 +16,8 @@ import GenZPage from '../pages/collections/GenZPage'
 import NewCollectionsPage from '../pages/collections/NewCollectionsPage'
 import AIRecommendationsPage from '../pages/collections/AIRecommendationsPage'
 import MyCartPage from '../pages/cart/MyCartPage'
+import CheckoutReviewPage from '../pages/checkout/CheckoutReviewPage'
+import ProductUploadPage from '../pages/admin/ProductUploadPage'
 import FAQPage from '../pages/support/FAQPage'
 import ShippingReturnsPage from '../pages/support/ShippingReturnsPage'
 import SizeGuidePage from '../pages/support/SizeGuidePage'
@@ -47,6 +49,8 @@ function AppRouter() {
           <Route path="/new-collections" element={<NewCollectionsPage />} />
           <Route path="/ai-recommendations" element={<AIRecommendationsPage />} />
           <Route path="/my-cart" element={<MyCartPage />} />
+          <Route path="/checkout/review" element={<CheckoutReviewPage />} />
+          <Route path="/admin/products" element={<ProductUploadPage />} />
           <Route path="/favourites" element={<Favourites />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/my-profile" element={<MyProfile />} />

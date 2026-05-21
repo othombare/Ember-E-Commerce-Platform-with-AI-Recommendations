@@ -1,7 +1,7 @@
 import axios from 'axios'
 import useAuthStore, { isTokenValid } from '../store/authStore'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://jsonplaceholder.typicode.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000'
 const API_TIMEOUT = Number(import.meta.env.VITE_API_TIMEOUT ?? 10000)
 
 const api = axios.create({

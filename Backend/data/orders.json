@@ -1,0 +1,156 @@
+[
+  {
+    "id": "EMBER-ONCKZQGNER",
+    "user": {
+      "id": "JWA2965ELUIH",
+      "email": "admin@ember.com",
+      "name": "Ember Admin"
+    },
+    "items": [
+      {
+        "id": "demo_1",
+        "productId": "demo_1",
+        "name": "Demo Product",
+        "image": "https://example.com/demo.jpg",
+        "category": "General",
+        "size": "M",
+        "price": 499,
+        "oldPrice": 699,
+        "quantity": 1
+      }
+    ],
+    "itemCount": 1,
+    "subtotal": 499,
+    "shipping": 49,
+    "tax": 27,
+    "total": 575,
+    "shippingAddress": {
+      "id": "addr_demo",
+      "label": "Home",
+      "fullName": "Ember Admin",
+      "phone": "+91 9000000000",
+      "line1": "Main Road 1",
+      "line2": "",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560001",
+      "country": "India"
+    },
+    "payment": {
+      "method": "ONLINE",
+      "channel": "UPI",
+      "status": "paid",
+      "transactionRef": "TXN-DEMO-1234",
+      "paidAt": "2026-05-21T11:26:26.184Z"
+    },
+    "notes": "Test order",
+    "status": "Placed",
+    "createdAt": "2026-05-21T11:26:26.184Z",
+    "updatedAt": "2026-05-21T11:26:26.184Z"
+  },
+  {
+    "id": "EMBER-0JXNWKSXP-",
+    "user": {
+      "id": "JWA2965ELUIH",
+      "email": "admin@ember.com",
+      "name": "Ember Admin"
+    },
+    "items": [
+      {
+        "id": "urban-essentials-tee::M",
+        "productId": "urban-essentials-tee",
+        "name": "Urban Essentials Tee",
+        "image": "/uploads/products/urban-ember-tee.svg",
+        "category": "T-Shirts",
+        "size": "M",
+        "price": 899,
+        "oldPrice": 1299,
+        "quantity": 1
+      }
+    ],
+    "itemCount": 1,
+    "subtotal": 899,
+    "shipping": 99,
+    "tax": 72,
+    "total": 1070,
+    "shippingAddress": {
+      "id": "addr_test_1",
+      "label": "Home",
+      "fullName": "Ember Admin",
+      "phone": "+91 9876543210",
+      "line1": "22 MG Road",
+      "line2": "",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "pincode": "560001",
+      "country": "India"
+    },
+    "payment": {
+      "method": "ONLINE",
+      "channel": "UPI",
+      "status": "paid",
+      "transactionRef": "TXN-TEST-12345",
+      "paidAt": "2026-05-21T11:20:24.125Z"
+    },
+    "notes": "Ring bell once",
+    "status": "Placed",
+    "createdAt": "2026-05-21T11:20:24.124Z",
+    "updatedAt": "2026-05-21T11:20:24.124Z"
+  },
+  {
+    "id": "EMBER-1KN7LKOTE5",
+    "user": {
+      "id": "esK6kWCULf6A",
+      "email": "admin@interiorerp.local",
+      "name": "onkar"
+    },
+    "items": [
+      {
+        "id": "charcoal-active-tee::S",
+        "productId": "charcoal-active-tee",
+        "name": "Charcoal Active Tee",
+        "image": "http://localhost:5000/uploads/products/motion-dry-tee.svg",
+        "category": "Active Wear",
+        "price": 949,
+        "oldPrice": 1399,
+        "size": "S",
+        "quantity": 1
+      }
+    ],
+    "subtotal": 949,
+    "shipping": 99,
+    "tax": 76,
+    "total": 1124,
+    "status": "Placed",
+    "createdAt": "2026-05-21T11:08:00.474Z",
+    "updatedAt": "2026-05-21T11:08:00.474Z"
+  },
+  {
+    "id": "EMBER-FP7NA4KC-M",
+    "user": {
+      "id": "esK6kWCULf6A",
+      "email": "admin@interiorerp.local",
+      "name": "onkar"
+    },
+    "items": [
+      {
+        "id": "charcoal-active-tee::S",
+        "productId": "charcoal-active-tee",
+        "name": "Charcoal Active Tee",
+        "image": "http://localhost:5000/uploads/products/motion-dry-tee.svg",
+        "category": "Active Wear",
+        "price": 949,
+        "oldPrice": 1399,
+        "size": "S",
+        "quantity": 3
+      }
+    ],
+    "subtotal": 2847,
+    "shipping": 99,
+    "tax": 228,
+    "total": 3174,
+    "status": "Placed",
+    "createdAt": "2026-05-21T11:06:06.208Z",
+    "updatedAt": "2026-05-21T11:06:06.208Z"
+  }
+]

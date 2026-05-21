@@ -1,8 +1,10 @@
 import newCollectionsHero from '../../assets/generated/new-collections-hero.png'
-import { newCollectionProducts } from '../../data/curatedProducts'
+import useCatalogProducts from '../../hooks/useCatalogProducts'
 import CollectionPageTemplate from './CollectionPageTemplate'
 
 function NewCollectionsPage() {
+  const { newCollectionProducts } = useCatalogProducts()
+
   return (
     <CollectionPageTemplate
       activeNavLink="new-collections"

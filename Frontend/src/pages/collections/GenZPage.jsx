@@ -1,8 +1,10 @@
 import genzHero from '../../assets/generated/genz-hero.png'
-import { genzProducts } from '../../data/curatedProducts'
+import useCatalogProducts from '../../hooks/useCatalogProducts'
 import CollectionPageTemplate from './CollectionPageTemplate'
 
 function GenZPage() {
+  const { genzProducts } = useCatalogProducts()
+
   return (
     <CollectionPageTemplate
       activeNavLink="genz"

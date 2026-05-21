@@ -1,13 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import productImageOne from '../../assets/home/product-1.png'
-import productImageTwo from '../../assets/home/product-2.png'
-import productImageThree from '../../assets/home/product-3.png'
-import productImageFour from '../../assets/home/product-4.png'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
-import { allCatalogProducts, findProductById } from '../../data/curatedProducts'
+import useCatalogProducts from '../../hooks/useCatalogProducts'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
@@ -16,6 +12,7 @@ import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNa
 function ProductDetails() {
   const { productId } = useParams()
   const navigate = useNavigate()
+  const { findProductById, products: listingProducts } = useCatalogProducts()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
@@ -27,29 +24,48 @@ function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState('M')
   const [quantity, setQuantity] = useState(1)
 
-  const product = useMemo(() => findProductById(productId), [productId])
+  const product = useMemo(() => findProductById(productId), [findProductById, productId])
 
   const gallery = useMemo(() => {
     if (!product) {
-      return [productImageOne, productImageTwo, productImageThree, productImageFour]
+      return []
     }
 
-    return [product.image, productImageFour, productImageTwo, productImageThree, productImageOne]
-  }, [product])
+    const categoryImages = listingProducts
+      .filter((item) => item.id !== product.id && item.category === product.category)
+      .map((item) => item.image)
+      .filter(Boolean)
+      .slice(0, 4)
+
+    const uniqueGallery = Array.from(new Set([product.image, ...categoryImages]))
+    return uniqueGallery.length > 0 ? uniqueGallery : [product.image]
+  }, [listingProducts, product])
 
   const [activeImage, setActiveImage] = useState(0)
 
-  useEffect(() => {
-    setActiveImage(0)
-  }, [productId])
-
   const recommendedProducts = useMemo(() => {
     if (!product) {
-      return allCatalogProducts.slice(0, 4)
+      return listingProducts.slice(0, 4)
     }
 
-    return allCatalogProducts.filter((item) => item.id !== product.id).slice(0, 4)
-  }, [product])
+    const sameCategoryProducts = listingProducts.filter((item) => item.id !== product.id && item.category === product.category).slice(0, 4)
+    if (sameCategoryProducts.length === 4) {
+      return sameCategoryProducts
+    }
+
+    const fallbackProducts = listingProducts.filter((item) => item.id !== product.id && item.category !== product.category).slice(0, 4 - sameCategoryProducts.length)
+
+    return [...sameCategoryProducts, ...fallbackProducts]
+  }, [listingProducts, product])
+
+  const [activeProductId, setActiveProductId] = useState(productId)
+
+  if (activeProductId !== productId) {
+    setActiveProductId(productId)
+    setActiveImage(0)
+    setSelectedSize(product?.sizes?.[0] ?? 'M')
+    setQuantity(1)
+  }
 
   const handleCategoryTabToggle = (category) => {
     if (activeCategory === category && isCategoryPanelOpen) {

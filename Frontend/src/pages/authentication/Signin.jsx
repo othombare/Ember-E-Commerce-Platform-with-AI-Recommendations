@@ -43,21 +43,32 @@ function Signin() {
     }
 
     setIsSubmitting(true)
-    setApiStatus('Signing in and validating API connection...')
+    setApiStatus('Signing in...')
 
     try {
-      const response = await api.get('/todos/1')
-      const mockToken = `demo-token-${Date.now()}`
-      const user = {
-        id: response.data?.id ?? Date.now(),
+      const response = await api.post('/api/auth/signin', {
         email,
-        name: createDisplayName(email),
+        password,
+      })
+
+      const apiToken = response.data?.token
+      const apiUser = response.data?.user
+
+      if (!apiToken || !apiUser) {
+        throw new Error('Invalid sign-in response from server.')
       }
 
-      login({ user, token: mockToken })
+      login({
+        user: {
+          id: apiUser.id ?? Date.now(),
+          email: apiUser.email ?? email,
+          name: apiUser.name ?? createDisplayName(email),
+          role: apiUser.role ?? 'customer',
+        },
+        token: apiToken,
+      })
 
-      const todoTitle = response.data?.title || 'API responded successfully.'
-      setApiStatus(`Signed in successfully: ${todoTitle}`)
+      setApiStatus(response.data?.message ?? 'Signed in successfully.')
       navigate('/dashboard')
     } catch (error) {
       setApiStatus(`Sign in failed: ${error.message}`)

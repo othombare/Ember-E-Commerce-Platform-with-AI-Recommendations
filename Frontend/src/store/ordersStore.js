@@ -11,6 +11,10 @@ function toOrderQuantity(value) {
   return Math.max(1, Number(value) || 1)
 }
 
+function sanitizeText(value) {
+  return String(value ?? '').trim()
+}
+
 function createOrderId() {
   const now = new Date()
   const datePart = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`
@@ -35,6 +39,54 @@ function toOrderItems(items) {
     }))
 }
 
+function normalizeOrderAddress(address) {
+  if (!address || typeof address !== 'object') {
+    return null
+  }
+
+  const normalizedAddress = {
+    id: sanitizeText(address.id),
+    label: sanitizeText(address.label) || 'Delivery Address',
+    fullName: sanitizeText(address.fullName),
+    phone: sanitizeText(address.phone),
+    line1: sanitizeText(address.line1),
+    line2: sanitizeText(address.line2),
+    city: sanitizeText(address.city),
+    state: sanitizeText(address.state),
+    pincode: sanitizeText(address.pincode),
+    country: sanitizeText(address.country) || 'India',
+  }
+
+  if (!normalizedAddress.line1 || !normalizedAddress.city || !normalizedAddress.state || !normalizedAddress.pincode) {
+    return null
+  }
+
+  return normalizedAddress
+}
+
+function normalizeOrderPayment(payment) {
+  const method = sanitizeText(payment?.method).toUpperCase()
+  const channel = sanitizeText(payment?.channel).toUpperCase()
+  const transactionRef = sanitizeText(payment?.transactionRef)
+  const status = sanitizeText(payment?.status)
+
+  if (method === 'ONLINE') {
+    return {
+      method: 'ONLINE',
+      channel: channel || 'UPI',
+      status: status || 'paid',
+      transactionRef: transactionRef || null,
+    }
+  }
+
+  return {
+    method: 'COD',
+    channel: 'COD',
+    status: status || 'pending',
+    transactionRef: null,
+  }
+}
+
 function doesOrderBelongToUser(order, user) {
   const userId = String(user?.id ?? '').trim()
   const userEmail = String(user?.email ?? '').trim().toLowerCase()
@@ -56,7 +108,17 @@ const useOrdersStore = create(
   persist(
     (set, get) => ({
       orders: [],
-      placeOrder: ({ items, user, subtotal = 0, shipping = 0, tax = 0, total = 0 }) => {
+      placeOrder: ({
+        items,
+        user,
+        subtotal = 0,
+        shipping = 0,
+        tax = 0,
+        total = 0,
+        shippingAddress = null,
+        payment = null,
+        notes = '',
+      }) => {
         const orderItems = toOrderItems(items)
         if (orderItems.length === 0) {
           return null
@@ -77,6 +139,9 @@ const useOrdersStore = create(
           shipping: toOrderAmount(shipping),
           tax: toOrderAmount(tax),
           total: toOrderAmount(total),
+          shippingAddress: normalizeOrderAddress(shippingAddress),
+          payment: normalizeOrderPayment(payment),
+          notes: sanitizeText(notes) || null,
         }
 
         set((state) => ({ orders: [nextOrder, ...state.orders] }))

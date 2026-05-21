@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { FOOTER_CATEGORIES } from '../../data/productCategories'
 
 const socialLinks = [
   { id: 'in', label: 'in', href: 'https://www.linkedin.com' },
@@ -15,10 +16,6 @@ const supportLinks = [
 ]
 
 function StoreFooter({ onCategorySelect }) {
-  const menCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', 'All Shirts', 'Cargoes', 'Active Wear', 'Hoodies & Jackets']
-  const womenCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', "Saree's", 'Kurtas & Suits', 'Formals', 'Active Wear']
-  const kidsCategories = ['T-shirts', 'Joggers', "Polo's", 'Shorts', 'Jeans', 'Shirts', 'Formals', 'Party Wear']
-
   const scrollToPageTop = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
   }
@@ -94,19 +91,19 @@ function StoreFooter({ onCategorySelect }) {
           <div className="grid grid-cols-3 gap-4 text-[17px] text-[#b8b8b8]">
             <ul className="space-y-2">
               <li className="text-white">Men</li>
-              {menCategories.map((category) => (
+              {FOOTER_CATEGORIES.men.map((category) => (
                 <li key={`men-${category}`}>{renderCategoryAction(category)}</li>
               ))}
             </ul>
             <ul className="space-y-2">
               <li className="text-white">Women</li>
-              {womenCategories.map((category) => (
+              {FOOTER_CATEGORIES.women.map((category) => (
                 <li key={`women-${category}`}>{renderCategoryAction(category)}</li>
               ))}
             </ul>
             <ul className="space-y-2">
               <li className="text-white">Kids</li>
-              {kidsCategories.map((category) => (
+              {FOOTER_CATEGORIES.kids.map((category) => (
                 <li key={`kids-${category}`}>{renderCategoryAction(category)}</li>
               ))}
             </ul>

@@ -6,7 +6,7 @@ import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
-import useOrdersStore from '../../store/ordersStore'
+import { getCartPricing } from '../../utils/checkout'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
@@ -17,19 +17,12 @@ function MyCartPage() {
   const cartItems = useCartStore((state) => state.items)
   const updateCartItemQuantity = useCartStore((state) => state.updateCartItemQuantity)
   const removeFromCart = useCartStore((state) => state.removeFromCart)
-  const clearCart = useCartStore((state) => state.clearCart)
-  const placeOrder = useOrdersStore((state) => state.placeOrder)
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
 
-  const subtotal = useMemo(
-    () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
-    [cartItems],
-  )
-  const shipping = cartItems.length > 0 ? 99 : 0
-  const tax = Math.round(subtotal * 0.08)
-  const total = subtotal + shipping + tax
+  const pricing = useMemo(() => getCartPricing(cartItems), [cartItems])
+  const { subtotal, shipping, tax, total } = pricing
 
   const handleCategoryTabToggle = (category) => {
     if (activeCategory === category && isCategoryPanelOpen) {
@@ -70,21 +63,7 @@ function MyCartPage() {
       return
     }
 
-    const orderId = placeOrder({
-      items: cartItems,
-      user,
-      subtotal,
-      shipping,
-      tax,
-      total,
-    })
-
-    if (!orderId) {
-      return
-    }
-
-    clearCart()
-    navigate('/my-profile')
+    navigate('/checkout/review')
   }
 
   return (

@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
-import { allCatalogProducts } from '../../data/curatedProducts'
+import { PRODUCT_CATEGORIES } from '../../data/productCategories'
+import useCatalogProducts from '../../hooks/useCatalogProducts'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
-const categoryFilters = ['T-Shirts', 'Joggers', "Polo's", 'Shorts', 'All-Shirts', 'Cargoes', 'Active Wear', 'Hoodies & Jackets']
-const sizeFilters = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL']
+const sizeFilters = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
 const ratingFilters = [5, 4, 3, 2, 1]
 
 const priceRanges = [
@@ -30,10 +30,9 @@ const sortOptions = [
   { id: 'price-high-low', label: 'Price High to Low' },
 ]
 
-const listingProducts = allCatalogProducts
-
 function AllProducts() {
   const navigate = useNavigate()
+  const { products: listingProducts } = useCatalogProducts()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
@@ -95,7 +94,7 @@ function AllProducts() {
     }
 
     return items
-  }, [searchText, selectedCategories, selectedSizes, selectedRating, selectedPriceRange, selectedSort])
+  }, [listingProducts, searchText, selectedCategories, selectedSizes, selectedRating, selectedPriceRange, selectedSort])
 
   const toggleCategory = (value) => {
     setSelectedCategories((prev) => (prev.includes(value) ? prev.filter((entry) => entry !== value) : [...prev, value]))
@@ -189,7 +188,7 @@ function AllProducts() {
           <p className="text-[28px] font-light text-[#2b2b2b]">All Products Screen</p>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <h1 className="text-[24px] font-medium text-[#1f1f1f]">
-              T-shirts <span className="text-[13px] font-normal text-[#8b8b8b]">{filteredProducts.length} items</span>
+              All Products <span className="text-[13px] font-normal text-[#8b8b8b]">{filteredProducts.length} items</span>
             </h1>
             <button
               className="border border-[#c4c4c4] px-3 py-1 text-[12px] text-[#2f2f2f] transition hover:bg-[#f5f5f5]"
@@ -213,7 +212,7 @@ function AllProducts() {
             <section className="border-b border-[#e5e5e5] px-4 py-3">
               <h3 className="text-[13px] font-semibold text-[#303030]">Categories</h3>
               <div className="mt-3 flex flex-wrap gap-2">
-                {categoryFilters.map((item) => (
+                {PRODUCT_CATEGORIES.map((item) => (
                   <button
                     className={`border px-2 py-1 text-[11px] transition ${
                       selectedCategories.includes(item)
@@ -359,7 +358,10 @@ function AllProducts() {
                   </div>
                   <div className="p-2.5">
                     <h3 className="truncate text-[11px] text-[#444]">{product.name}</h3>
-                    <p className="truncate text-[11px] text-[#8c8c8c]">All-Shirts - Regular Fit</p>
+                    <p className="truncate text-[11px] text-[#8c8c8c]">
+                      {product.category}
+                      {product.shortDescription ? ` - ${product.shortDescription}` : ''}
+                    </p>
                     <p className="mt-1 flex items-center gap-2 text-[14px] font-semibold text-[#222]">
                       Rs {product.price}
                       <span className="text-[11px] font-normal text-[#8d8d8d] line-through">Rs {product.oldPrice}</span>

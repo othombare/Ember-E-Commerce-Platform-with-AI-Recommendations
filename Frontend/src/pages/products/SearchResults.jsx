@@ -1,31 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
-import { allCatalogProducts } from '../../data/curatedProducts'
+import { PRODUCT_CATEGORIES } from '../../data/productCategories'
+import useCatalogProducts from '../../hooks/useCatalogProducts'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { normalizeCategoryLabel, toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
-
-const categoryFilters = [
-  'T-shirts',
-  'Joggers',
-  "Polo's",
-  'Shorts',
-  'All-Shirts',
-  'Cargoes',
-  'Formals',
-  'Active Wear',
-  'Hoodies & Jackets',
-  'Sarees',
-  'Kurtas & Suits',
-  'Dupatta',
-  'Jeans',
-  'Shirts',
-  'Party Wear',
-]
 
 const priceRanges = [
   { id: 'under-500', label: 'Less than Rs 500', min: 0, max: 499 },
@@ -60,8 +43,6 @@ const sortOptions = [
   { id: 'best-sellings', label: 'Best Sellings' },
   { id: 'new-arrivals', label: 'New Arrivals' },
 ]
-
-const listingProducts = allCatalogProducts
 
 function ProductTile({ onAddToCart, onOpenProduct, product }) {
   return (
@@ -115,6 +96,7 @@ function ProductTile({ onAddToCart, onOpenProduct, product }) {
 
 function SearchResults() {
   const navigate = useNavigate()
+  const { products: listingProducts } = useCatalogProducts()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
@@ -123,7 +105,8 @@ function SearchResults() {
   const [searchParams] = useSearchParams()
   const queryFromUrl = searchParams.get('q') ?? ''
   const routeCategory = categoryName ? normalizeCategoryLabel(categoryName) : ''
-  const [searchText, setSearchText] = useState(routeCategory ? '' : queryFromUrl || 'cotton')
+  const routeStateKey = `${routeCategory}:${queryFromUrl}`
+  const [searchText, setSearchText] = useState(routeCategory ? '' : queryFromUrl)
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
   const [selectedSort, setSelectedSort] = useState('price-low-high')
@@ -132,16 +115,15 @@ function SearchResults() {
   const [selectedSizes, setSelectedSizes] = useState([])
   const [selectedRating, setSelectedRating] = useState(0)
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false)
+  const [appliedRouteStateKey, setAppliedRouteStateKey] = useState(routeStateKey)
 
-  useEffect(() => {
+  if (appliedRouteStateKey !== routeStateKey) {
+    setAppliedRouteStateKey(routeStateKey)
+    setSearchText(routeCategory ? '' : queryFromUrl)
     if (routeCategory) {
-      setSearchText('')
       setSelectedCategories([])
-      return
     }
-
-    setSearchText(queryFromUrl || 'cotton')
-  }, [queryFromUrl, routeCategory])
+  }
 
   const sortLabel = sortOptions.find((option) => option.id === selectedSort)?.label ?? 'Price Low to High'
 
@@ -198,11 +180,12 @@ function SearchResults() {
     }
 
     return items
-  }, [routeCategory, searchText, selectedSort, selectedCategories, selectedPriceRange, selectedSizes, selectedRating])
+  }, [listingProducts, routeCategory, searchText, selectedSort, selectedCategories, selectedPriceRange, selectedSizes, selectedRating])
 
   const hasResults = filteredProducts.length > 0
-  const headingLabel = routeCategory || (hasResults ? 'T-shirts' : `Search Results for "${searchText || 'Cotton Shirts'}"`)
-  const breadcrumbCategory = routeCategory || 'T-Shirts'
+  const normalizedSearchText = searchText.trim()
+  const headingLabel = routeCategory || (normalizedSearchText ? `Search Results for "${normalizedSearchText}"` : 'All Products')
+  const breadcrumbCategory = routeCategory || 'Search'
 
   const applySearch = () => {
     navigate(toSearchResultsRoute(searchText))
@@ -336,7 +319,7 @@ function SearchResults() {
                 <span className="text-[12px] text-[#6f6f6f]">v</span>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
-                {categoryFilters.map((item) => (
+                {PRODUCT_CATEGORIES.map((item) => (
                   <button
                     className={`border px-2 py-1 text-[11px] transition ${
                       routeCategory === normalizeCategoryLabel(item) || selectedCategories.includes(normalizeCategoryLabel(item))
