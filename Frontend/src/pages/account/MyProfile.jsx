@@ -411,6 +411,7 @@ function MyProfile() {
           onNavLinkSelect={handleHeaderNavSelect}
           onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
+          onOpenWishlist={() => navigate('/wishlist')}
           onOpenNotifications={() => navigate('/notifications')}
           onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
           onSearchChange={setSearchText}
@@ -510,12 +511,28 @@ function MyProfile() {
                   </p>
                 </div>
                 <div className="space-y-1 px-7 py-4 text-[16px] text-[#20252a]">
-                  <p className="flex items-center justify-between">
+                  <button
+                    className="flex w-full items-center justify-between rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/account/gift-cards')}
+                    type="button"
+                  >
                     <span>Gift Cards</span>
                     <span className="font-semibold text-[#2f9341]">Rs 0</span>
-                  </p>
-                  <p>Saved UPI</p>
-                  <p>Saved Cards</p>
+                  </button>
+                  <button
+                    className="block w-full rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/account/saved-upi')}
+                    type="button"
+                  >
+                    Saved UPI
+                  </button>
+                  <button
+                    className="block w-full rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/account/saved-cards')}
+                    type="button"
+                  >
+                    Saved Cards
+                  </button>
                 </div>
               </article>
 
@@ -529,10 +546,41 @@ function MyProfile() {
                   </p>
                 </div>
                 <div className="space-y-1 px-7 py-4 text-[16px] text-[#20252a]">
-                  <p>My Coupons</p>
-                  <p>My Reviews & Ratings</p>
-                  <p>All Notifications</p>
-                  <p>My Wishlist</p>
+                  <button
+                    className="block w-full rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/account/coupons')}
+                    type="button"
+                  >
+                    My Coupons
+                  </button>
+                  <button
+                    className="block w-full rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/account/reviews')}
+                    type="button"
+                  >
+                    My Reviews & Ratings
+                  </button>
+                  <button
+                    className="block w-full rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/notifications')}
+                    type="button"
+                  >
+                    All Notifications
+                  </button>
+                  <button
+                    className="block w-full rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/wishlist')}
+                    type="button"
+                  >
+                    My Wishlist
+                  </button>
+                  <button
+                    className="block w-full rounded px-2 py-1 text-left transition hover:bg-[#f7f9fb]"
+                    onClick={() => navigate('/become-seller')}
+                    type="button"
+                  >
+                    Become Seller
+                  </button>
                 </div>
               </article>
 
@@ -975,4 +1023,5 @@ function MyProfile() {
 }
 
 export default MyProfile
+
 

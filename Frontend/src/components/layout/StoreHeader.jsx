@@ -66,6 +66,7 @@ function StoreHeader({
   onNavLinkSelect,
   onOpenCart,
   onOpenFavourites,
+  onOpenWishlist,
   onOpenNotifications,
   onOpenProfile,
   onSearchChange,
@@ -163,6 +164,11 @@ function StoreHeader({
         id: 'wishlist',
         label: 'Wishlist',
         onClick: () => {
+          if (typeof onOpenWishlist === 'function') {
+            onOpenWishlist()
+            return
+          }
+
           if (typeof onOpenFavourites === 'function') {
             onOpenFavourites()
           }
@@ -189,7 +195,7 @@ function StoreHeader({
         },
       },
     ],
-    [onLogout, onOpenFavourites, onOpenNotifications, onOpenProfile],
+    [onLogout, onOpenFavourites, onOpenNotifications, onOpenProfile, onOpenWishlist],
   )
 
   useEffect(() => {

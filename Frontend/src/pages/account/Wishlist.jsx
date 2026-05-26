@@ -11,23 +11,23 @@ import { toCategoryRoute } from '../../utils/category'
 import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
-function Favourites() {
+function Wishlist() {
   const navigate = useNavigate()
   const { products } = useCatalogProducts()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
-  const { addToWishlist, favouriteProductIds, removeFromFavourites } = useSavedItems()
+  const { addToFavourites, removeFromWishlist, wishlistProductIds } = useSavedItems()
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
   const [statusMessage, setStatusMessage] = useState('')
   const productLookup = useMemo(() => new Map(products.map((item) => [normalizeProductId(item.id), item])), [products])
 
-  const favouriteItems = useMemo(
-    () => favouriteProductIds.map((productId) => productLookup.get(normalizeProductId(productId))).filter(Boolean),
-    [favouriteProductIds, productLookup],
+  const wishlistItems = useMemo(
+    () => wishlistProductIds.map((productId) => productLookup.get(normalizeProductId(productId))).filter(Boolean),
+    [wishlistProductIds, productLookup],
   )
 
   const handleLogout = () => {
@@ -86,14 +86,14 @@ function Favourites() {
 
         <section className="px-5 py-5 sm:px-8 sm:py-7">
           <div className="flex items-center justify-between border-b border-[#ececec] pb-3">
-            <h1 className="text-[34px] font-semibold text-[#222]">Favourites</h1>
-            <p className="text-[12px] text-[#8a8a8a]">{favouriteItems.length} saved items</p>
+            <h1 className="text-[34px] font-semibold text-[#222]">Wishlist</h1>
+            <p className="text-[12px] text-[#8a8a8a]">{wishlistItems.length} saved items</p>
           </div>
 
           {statusMessage ? <p className="mt-4 text-[13px] text-[#3f3f3f]">{statusMessage}</p> : null}
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {favouriteItems.map((item) => (
+            {wishlistItems.map((item) => (
               <article className="border border-[#dfdfdf] bg-white p-2" key={item.id}>
                 <button className="w-full text-left" onClick={() => navigate(`/product/${item.id}`)} type="button">
                   <img alt={item.name} className="h-[230px] w-full object-cover" src={item.image} />
@@ -104,8 +104,8 @@ function Favourites() {
                   <button
                     className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]"
                     onClick={async () => {
-                      const result = await removeFromFavourites(item.id)
-                      setStatusMessage(result.ok ? `${item.name} removed from favourites.` : result.error)
+                      const result = await removeFromWishlist(item.id)
+                      setStatusMessage(result.ok ? `${item.name} removed from wishlist.` : result.error)
                     }}
                     type="button"
                   >
@@ -114,12 +114,12 @@ function Favourites() {
                   <button
                     className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]"
                     onClick={async () => {
-                      const result = await addToWishlist(item.id)
-                      setStatusMessage(result.ok ? `${item.name} added to wishlist.` : result.error)
+                      const result = await addToFavourites(item.id)
+                      setStatusMessage(result.ok ? `${item.name} added to favourites.` : result.error)
                     }}
                     type="button"
                   >
-                    Add to Wishlist
+                    Add to Favourites
                   </button>
                   <button
                     className="bg-[#1f2125] px-2 py-1 text-[11px] text-white transition hover:bg-black"
@@ -133,10 +133,10 @@ function Favourites() {
             ))}
           </div>
 
-          {favouriteItems.length === 0 ? (
+          {wishlistItems.length === 0 ? (
             <div className="mt-5 border border-[#dfdfdf] bg-[#faf9f7] p-6 text-center">
-              <h2 className="text-[22px] font-medium text-[#2b2b2b]">No saved favourites</h2>
-              <p className="mt-2 text-[13px] text-[#666]">Browse products and save your top picks here.</p>
+              <h2 className="text-[22px] font-medium text-[#2b2b2b]">No saved wishlist items</h2>
+              <p className="mt-2 text-[13px] text-[#666]">Save products to wishlist so you can revisit them anytime.</p>
               <button
                 className="mt-4 bg-[#1f2125] px-4 py-2 text-[12px] text-white transition hover:bg-black"
                 onClick={() => navigate('/products')}
@@ -154,4 +154,4 @@ function Favourites() {
   )
 }
 
-export default Favourites
+export default Wishlist

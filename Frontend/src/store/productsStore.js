@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import api from '../api/axios'
 import { allCatalogProducts } from '../data/curatedProducts'
+import { normalizeProductId } from '../utils/productId'
 
 function normalizeApiProduct(product, fallbackBaseUrl = '') {
   const rawImage = String(product?.image ?? '').trim()
@@ -11,7 +12,7 @@ function normalizeApiProduct(product, fallbackBaseUrl = '') {
   }
 
   return {
-    id: product?.id,
+    id: normalizeProductId(product?.id) || normalizeProductId(product?.name),
     name: product?.name ?? 'Unnamed Product',
     category: product?.category ?? 'General',
     image: image || allCatalogProducts[0]?.image || '',
@@ -68,7 +69,7 @@ const useProductsStore = create((set, get) => ({
   },
   prependProduct: (product) =>
     set((state) => ({
-      products: [product, ...state.products.filter((entry) => entry.id !== product.id)],
+      products: [product, ...state.products.filter((entry) => normalizeProductId(entry.id) !== normalizeProductId(product.id))],
     })),
 }))
 

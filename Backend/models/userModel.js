@@ -185,6 +185,18 @@ function normalizeAddressesInput(addresses) {
   return ensureSingleDefaultAddress(nextAddresses)
 }
 
+function normalizeProductId(productId) {
+  return sanitizeText(productId)
+}
+
+function normalizeProductIdCollection(productIds) {
+  if (!Array.isArray(productIds)) {
+    return []
+  }
+
+  return [...new Set(productIds.map((productId) => normalizeProductId(productId)).filter(Boolean))]
+}
+
 function normalizeUserRecord(user) {
   return {
     ...user,
@@ -195,6 +207,8 @@ function normalizeUserRecord(user) {
     phone: normalizePhone(user?.phone),
     gender: normalizeGender(user?.gender),
     addresses: normalizeAddressesFromStore(user?.addresses),
+    favouriteProductIds: normalizeProductIdCollection(user?.favouriteProductIds),
+    wishlistProductIds: normalizeProductIdCollection(user?.wishlistProductIds),
     sellerProfile: normalizeSellerProfile(user?.sellerProfile),
     createdAt: user?.createdAt ?? new Date().toISOString(),
     updatedAt: user?.updatedAt ?? user?.createdAt ?? new Date().toISOString(),
@@ -238,6 +252,8 @@ export async function createUser({ email, name, passwordHash, role = 'customer',
     phone: normalizePhone(phone),
     gender: '',
     addresses: normalizeAddressesInput(addresses),
+    favouriteProductIds: [],
+    wishlistProductIds: [],
     sellerProfile: null,
     createdAt: now,
     updatedAt: now,
@@ -305,6 +321,42 @@ export async function updateUserProfile(userId, updates = {}) {
 
   if (Object.prototype.hasOwnProperty.call(updates, 'addresses')) {
     nextUser.addresses = normalizeAddressesInput(updates.addresses)
+  }
+
+  nextUser.updatedAt = new Date().toISOString()
+
+  users[userIndex] = normalizeUserRecord(nextUser)
+  await writeCollection(usersFilePath, users)
+
+  return {
+    user: users[userIndex],
+    error: null,
+  }
+}
+
+export async function updateUserSavedItems(userId, updates = {}) {
+  const users = await getUsers()
+  const targetUserId = String(userId ?? '').trim()
+  const userIndex = users.findIndex((user) => user.id === targetUserId)
+
+  if (userIndex < 0) {
+    return {
+      user: null,
+      error: 'not_found',
+    }
+  }
+
+  const currentUser = users[userIndex]
+  const nextUser = {
+    ...currentUser,
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'favouriteProductIds')) {
+    nextUser.favouriteProductIds = normalizeProductIdCollection(updates.favouriteProductIds)
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updates, 'wishlistProductIds')) {
+    nextUser.wishlistProductIds = normalizeProductIdCollection(updates.wishlistProductIds)
   }
 
   nextUser.updatedAt = new Date().toISOString()
@@ -415,6 +467,8 @@ export async function ensureDefaultAdminUser() {
     phone: '',
     gender: '',
     addresses: [],
+    favouriteProductIds: [],
+    wishlistProductIds: [],
     sellerProfile: null,
     createdAt: now,
     updatedAt: now,

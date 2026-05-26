@@ -5,9 +5,11 @@ import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import { PRODUCT_CATEGORIES } from '../../data/productCategories'
 import useCatalogProducts from '../../hooks/useCatalogProducts'
+import useSavedItems from '../../hooks/useSavedItems'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
+import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
 const sizeFilters = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
@@ -37,6 +39,7 @@ function AllProducts() {
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
+  const { favouriteProductIds, toggleFavourite, toggleWishlist, wishlistProductIds } = useSavedItems()
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
@@ -48,6 +51,8 @@ function AllProducts() {
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false)
 
   const sortLabel = sortOptions.find((option) => option.id === selectedSort)?.label ?? 'All'
+  const favouriteIdsSet = useMemo(() => new Set(favouriteProductIds), [favouriteProductIds])
+  const wishlistIdsSet = useMemo(() => new Set(wishlistProductIds), [wishlistProductIds])
 
   const filteredProducts = useMemo(() => {
     const normalizedSearch = searchText.toLowerCase().trim()
@@ -176,6 +181,7 @@ function AllProducts() {
           onNavLinkSelect={handleHeaderNavSelect}
           onOpenCart={handleOpenCartPage}
           onOpenFavourites={handleOpenFavouritesPage}
+          onOpenWishlist={() => navigate('/wishlist')}
           onOpenNotifications={handleOpenNotificationsPage}
           onOpenProfile={handleOpenProfilePage}
           onSearchChange={setSearchText}
@@ -332,7 +338,9 @@ function AllProducts() {
             </div>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product) => {
+                const normalizedProductId = normalizeProductId(product.id)
+                return (
                 <article
                   className="group border border-[#dfdfdf] bg-white transition duration-200 hover:-translate-y-0.5 hover:border-[#bbbbbb] hover:shadow-lg"
                   key={product.id}
@@ -392,9 +400,40 @@ function AllProducts() {
                         Add
                       </button>
                     </div>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <button
+                        className={`border py-1 text-[11px] transition ${
+                          favouriteIdsSet.has(normalizedProductId)
+                            ? 'border-[#222] bg-[#222] text-white'
+                            : 'border-[#cfcfcf] text-[#3f3f3f] hover:bg-[#f5f5f5]'
+                        }`}
+                        onClick={async (event) => {
+                          event.stopPropagation()
+                          await toggleFavourite(product.id)
+                        }}
+                        type="button"
+                      >
+                        {favouriteIdsSet.has(normalizedProductId) ? 'Favourited' : 'Favourite'}
+                      </button>
+                      <button
+                        className={`border py-1 text-[11px] transition ${
+                          wishlistIdsSet.has(normalizedProductId)
+                            ? 'border-[#222] bg-[#222] text-white'
+                            : 'border-[#cfcfcf] text-[#3f3f3f] hover:bg-[#f5f5f5]'
+                        }`}
+                        onClick={async (event) => {
+                          event.stopPropagation()
+                          await toggleWishlist(product.id)
+                        }}
+                        type="button"
+                      >
+                        {wishlistIdsSet.has(normalizedProductId) ? 'Wishlisted' : 'Wishlist'}
+                      </button>
+                    </div>
                   </div>
                 </article>
-              ))}
+                )
+              })}
             </div>
 
             <div className="mt-7 flex items-center justify-end gap-2 border-t border-[#e8e8e8] pt-3">

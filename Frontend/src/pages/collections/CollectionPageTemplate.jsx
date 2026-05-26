@@ -77,6 +77,7 @@ function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTi
           onNavLinkSelect={handleHeaderNavSelect}
           onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
+          onOpenWishlist={() => navigate('/wishlist')}
           onOpenNotifications={() => navigate('/notifications')}
           onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
           onSearchChange={setSearchText}
@@ -154,4 +155,5 @@ function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTi
 }
 
 export default CollectionPageTemplate
+
 

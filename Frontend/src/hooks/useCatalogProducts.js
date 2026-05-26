@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import useProductsStore from '../store/productsStore'
+import { normalizeProductId } from '../utils/productId'
 
 function hasTag(product, tag) {
   return (product.tags ?? []).includes(tag)
@@ -17,12 +18,15 @@ export default function useCatalogProducts() {
     }
   }, [status, fetchProducts])
 
-  const productLookup = useMemo(() => new Map(products.map((product) => [product.id, product])), [products])
+  const productLookup = useMemo(
+    () => new Map(products.map((product) => [normalizeProductId(product.id), product])),
+    [products],
+  )
   const newCollectionProducts = useMemo(() => products.filter((product) => product.isNew), [products])
   const genzProducts = useMemo(() => products.filter((product) => hasTag(product, 'genz')), [products])
   const aiRecommendationProducts = useMemo(() => products.filter((product) => hasTag(product, 'ai-pick')), [products])
 
-  const findProductById = useCallback((productId) => productLookup.get(productId) ?? null, [productLookup])
+  const findProductById = useCallback((productId) => productLookup.get(normalizeProductId(productId)) ?? null, [productLookup])
 
   return {
     products,

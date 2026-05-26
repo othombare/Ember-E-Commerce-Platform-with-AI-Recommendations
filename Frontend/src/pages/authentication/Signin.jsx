@@ -60,6 +60,7 @@ function Signin() {
 
       login({
         user: {
+          ...apiUser,
           id: apiUser.id ?? Date.now(),
           email: apiUser.email ?? email,
           name: apiUser.name ?? createDisplayName(email),

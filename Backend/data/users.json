@@ -22,7 +22,15 @@
         "isDefault": true
       }
     ],
-    "updatedAt": "2026-05-21T11:26:26.181Z"
+    "updatedAt": "2026-05-26T19:15:43.116Z",
+    "gender": "",
+    "sellerProfile": null,
+    "favouriteProductIds": [
+      "urban-essentials-tee"
+    ],
+    "wishlistProductIds": [
+      "slate-runner-joggers"
+    ]
   },
   {
     "id": "esK6kWCULf6A",
@@ -32,8 +40,26 @@
     "role": "customer",
     "createdAt": "2026-05-21T11:04:54.946Z",
     "phone": "",
-    "addresses": [],
-    "updatedAt": "2026-05-21T11:04:54.946Z"
+    "addresses": [
+      {
+        "id": "addr_1779821327594",
+        "label": "Homegvxv",
+        "fullName": "dsfsgs",
+        "phone": "",
+        "line1": "sfgb",
+        "line2": "sfg",
+        "city": "sdfg",
+        "state": "fsg",
+        "pincode": "sfgb",
+        "country": "Indiasfg",
+        "isDefault": true
+      }
+    ],
+    "updatedAt": "2026-05-26T18:48:47.698Z",
+    "gender": "",
+    "sellerProfile": null,
+    "favouriteProductIds": [],
+    "wishlistProductIds": []
   },
   {
     "id": "RiJv0a9QNPZj",
@@ -44,6 +70,10 @@
     "phone": "",
     "addresses": [],
     "createdAt": "2026-05-21T16:34:26.983Z",
-    "updatedAt": "2026-05-21T16:34:26.983Z"
+    "updatedAt": "2026-05-21T16:34:26.983Z",
+    "gender": "",
+    "sellerProfile": null,
+    "favouriteProductIds": [],
+    "wishlistProductIds": []
   }
 ]

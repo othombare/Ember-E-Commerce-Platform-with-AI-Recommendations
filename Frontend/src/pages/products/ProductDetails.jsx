@@ -4,6 +4,7 @@ import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import useCatalogProducts from '../../hooks/useCatalogProducts'
+import useSavedItems from '../../hooks/useSavedItems'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
@@ -17,6 +18,7 @@ function ProductDetails() {
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
+  const { isFavourite, isInWishlist, toggleFavourite, toggleWishlist } = useSavedItems()
 
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
@@ -121,6 +123,7 @@ function ProductDetails() {
           onNavLinkSelect={handleHeaderNavSelect}
           onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
+          onOpenWishlist={() => navigate('/wishlist')}
           onOpenNotifications={() => navigate('/notifications')}
           onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
           onSearchChange={setSearchText}
@@ -224,6 +227,37 @@ function ProductDetails() {
                       Add to Cart
                     </button>
                   </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <button
+                      className={`h-9 border px-4 text-[12px] transition ${
+                        product && isFavourite(product.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#c8c8c8] text-[#444] hover:bg-[#f5f5f5]'
+                      }`}
+                      onClick={async () => {
+                        if (!product) {
+                          return
+                        }
+                        await toggleFavourite(product.id)
+                      }}
+                      type="button"
+                    >
+                      {product && isFavourite(product.id) ? 'Favourited' : 'Add to Favourites'}
+                    </button>
+                    <button
+                      className={`h-9 border px-4 text-[12px] transition ${
+                        product && isInWishlist(product.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#c8c8c8] text-[#444] hover:bg-[#f5f5f5]'
+                      }`}
+                      onClick={async () => {
+                        if (!product) {
+                          return
+                        }
+                        await toggleWishlist(product.id)
+                      }}
+                      type="button"
+                    >
+                      {product && isInWishlist(product.id) ? 'Wishlisted' : 'Add to Wishlist'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -248,6 +282,32 @@ function ProductDetails() {
                       <p className="mt-2 truncate text-[13px] text-[#2f2f2f]">{entry.name}</p>
                       <p className="text-[12px] text-[#818181]">{entry.category}</p>
                       <p className="mt-1 text-[14px] font-semibold">Rs {entry.price}</p>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        <button
+                          className={`border py-1 text-[10px] transition ${
+                            isFavourite(entry.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
+                          }`}
+                          onClick={async (event) => {
+                            event.stopPropagation()
+                            await toggleFavourite(entry.id)
+                          }}
+                          type="button"
+                        >
+                          {isFavourite(entry.id) ? 'Favourited' : 'Favourite'}
+                        </button>
+                        <button
+                          className={`border py-1 text-[10px] transition ${
+                            isInWishlist(entry.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
+                          }`}
+                          onClick={async (event) => {
+                            event.stopPropagation()
+                            await toggleWishlist(entry.id)
+                          }}
+                          type="button"
+                        >
+                          {isInWishlist(entry.id) ? 'Wishlisted' : 'Wishlist'}
+                        </button>
+                      </div>
                     </article>
                   ))}
                 </div>

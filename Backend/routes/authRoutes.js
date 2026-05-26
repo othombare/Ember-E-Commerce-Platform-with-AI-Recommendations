@@ -6,6 +6,7 @@ import {
   signup,
   submitSellerApplication,
   updateProfile,
+  updateSavedItems,
 } from '../controllers/authController.js'
 import { requireAuth } from '../utils/authMiddleware.js'
 
@@ -16,6 +17,7 @@ router.post('/signin', signin)
 router.post('/forgot-password', forgotPassword)
 router.get('/me', requireAuth, me)
 router.patch('/me', requireAuth, updateProfile)
+router.patch('/me/saved-items', requireAuth, updateSavedItems)
 router.patch('/me/seller', requireAuth, submitSellerApplication)
 
 export default router

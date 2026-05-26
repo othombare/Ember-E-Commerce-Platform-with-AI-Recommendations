@@ -10,12 +10,14 @@ import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import useCatalogProducts from '../../hooks/useCatalogProducts'
+import useSavedItems from '../../hooks/useSavedItems'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
+import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
-function ProductCard({ onAddToCart, onOpenProduct, product }) {
+function ProductCard({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, onToggleFavourite, onToggleWishlist, product }) {
   const [isImageError, setIsImageError] = useState(false)
 
   return (
@@ -78,12 +80,38 @@ function ProductCard({ onAddToCart, onOpenProduct, product }) {
             Add to Cart
           </button>
         </div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <button
+            className={`h-8 rounded-md border text-[11px] transition ${
+              isFavourite ? 'border-[#222] bg-[#222] text-white' : 'border-[#cecece] text-[#2d2d2d] hover:bg-[#f6f6f6]'
+            }`}
+            onClick={async (event) => {
+              event.stopPropagation()
+              await onToggleFavourite(product.id)
+            }}
+            type="button"
+          >
+            {isFavourite ? 'Favourited' : 'Favourite'}
+          </button>
+          <button
+            className={`h-8 rounded-md border text-[11px] transition ${
+              isInWishlist ? 'border-[#1f2125] bg-[#1f2125] text-white' : 'border-[#cecece] text-[#2d2d2d] hover:bg-[#f6f6f6]'
+            }`}
+            onClick={async (event) => {
+              event.stopPropagation()
+              await onToggleWishlist(product.id)
+            }}
+            type="button"
+          >
+            {isInWishlist ? 'Wishlisted' : 'Wishlist'}
+          </button>
+        </div>
       </div>
     </article>
   )
 }
 
-function ProductSection({ onAddToCart, onOpenProduct, products, subtitle, title }) {
+function ProductSection({ onAddToCart, onOpenProduct, onToggleFavourite, onToggleWishlist, products, savedItemsLookup, subtitle, title }) {
   if (products.length === 0) {
     return null
   }
@@ -101,9 +129,21 @@ function ProductSection({ onAddToCart, onOpenProduct, products, subtitle, title 
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        {products.map((product) => (
-          <ProductCard key={`${title}-${product.id}`} onAddToCart={onAddToCart} onOpenProduct={onOpenProduct} product={product} />
-        ))}
+        {products.map((product) => {
+          const normalizedProductId = normalizeProductId(product.id)
+          return (
+          <ProductCard
+            isFavourite={Boolean(savedItemsLookup[normalizedProductId]?.isFavourite)}
+            isInWishlist={Boolean(savedItemsLookup[normalizedProductId]?.isInWishlist)}
+            key={`${title}-${product.id}`}
+            onAddToCart={onAddToCart}
+            onOpenProduct={onOpenProduct}
+            onToggleFavourite={onToggleFavourite}
+            onToggleWishlist={onToggleWishlist}
+            product={product}
+          />
+          )
+        })}
       </div>
     </section>
   )
@@ -116,6 +156,7 @@ function Dashboard() {
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
+  const { favouriteProductIds, toggleFavourite, toggleWishlist, wishlistProductIds } = useSavedItems()
 
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
@@ -173,6 +214,21 @@ function Dashboard() {
     addToCart({ product, quantity: 1, size: product.sizes?.[0] ?? 'M' })
   }
 
+  const savedItemsLookup = useMemo(() => {
+    const favouriteIdsSet = new Set(favouriteProductIds)
+    const wishlistIdsSet = new Set(wishlistProductIds)
+
+    return products.reduce((lookup, product) => {
+      const normalizedProductId = normalizeProductId(product.id)
+
+      lookup[normalizedProductId] = {
+        isFavourite: favouriteIdsSet.has(normalizedProductId),
+        isInWishlist: wishlistIdsSet.has(normalizedProductId),
+      }
+      return lookup
+    }, {})
+  }, [favouriteProductIds, products, wishlistProductIds])
+
   return (
     <main className="min-h-screen w-full bg-[#3f3f42] text-[#202020]">
       <div className="w-full min-h-screen bg-[#f4f3f1]">
@@ -188,6 +244,7 @@ function Dashboard() {
           onNavLinkSelect={handleHeaderNavSelect}
           onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
+          onOpenWishlist={() => navigate('/wishlist')}
           onOpenNotifications={() => navigate('/notifications')}
           onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
           onSearchChange={setSearchText}
@@ -260,7 +317,10 @@ function Dashboard() {
           <ProductSection
             onAddToCart={handleAddToCart}
             onOpenProduct={handleOpenProduct}
+            onToggleFavourite={toggleFavourite}
+            onToggleWishlist={toggleWishlist}
             products={collections.newArrivals}
+            savedItemsLookup={savedItemsLookup}
             subtitle="Latest drops curated across men, women, and kids."
             title=""
           />
@@ -268,7 +328,10 @@ function Dashboard() {
           <ProductSection
             onAddToCart={handleAddToCart}
             onOpenProduct={handleOpenProduct}
+            onToggleFavourite={toggleFavourite}
+            onToggleWishlist={toggleWishlist}
             products={collections.essentials}
+            savedItemsLookup={savedItemsLookup}
             subtitle="Everyday wardrobe essentials with premium quality finish."
             title="Featured Collection"
           />
@@ -288,7 +351,10 @@ function Dashboard() {
           <ProductSection
             onAddToCart={handleAddToCart}
             onOpenProduct={handleOpenProduct}
+            onToggleFavourite={toggleFavourite}
+            onToggleWishlist={toggleWishlist}
             products={collections.aiRecommendations}
+            savedItemsLookup={savedItemsLookup}
             subtitle="Personalized picks tuned from customer trends and product affinity."
             title="AI Recommendations"
           />
@@ -296,7 +362,10 @@ function Dashboard() {
           <ProductSection
             onAddToCart={handleAddToCart}
             onOpenProduct={handleOpenProduct}
+            onToggleFavourite={toggleFavourite}
+            onToggleWishlist={toggleWishlist}
             products={collections.bestSellers}
+            savedItemsLookup={savedItemsLookup}
             subtitle="Top selling pieces loved by the Ember community."
             title="Best Sellers"
           />

@@ -378,6 +378,7 @@ function CheckoutReviewPage() {
             onNavLinkSelect={handleHeaderNavSelect}
             onOpenCart={() => navigate('/my-cart')}
             onOpenFavourites={() => navigate('/favourites')}
+          onOpenWishlist={() => navigate('/wishlist')}
             onOpenNotifications={() => navigate('/notifications')}
             onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
             onSearchChange={setSearchText}
@@ -419,6 +420,7 @@ function CheckoutReviewPage() {
           onNavLinkSelect={handleHeaderNavSelect}
           onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
+          onOpenWishlist={() => navigate('/wishlist')}
           onOpenNotifications={() => navigate('/notifications')}
           onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
           onSearchChange={setSearchText}
@@ -826,4 +828,5 @@ function CheckoutReviewPage() {
 }
 
 export default CheckoutReviewPage
+
 

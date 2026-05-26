@@ -5,6 +5,7 @@ import {
   findUserById,
   updateSellerProfile,
   updateUserProfile,
+  updateUserSavedItems,
 } from '../models/userModel.js'
 import { signAuthToken, toSafeUser } from '../utils/auth.js'
 
@@ -208,6 +209,31 @@ export async function submitSellerApplication(req, res) {
 
   res.json({
     message: 'Seller application submitted successfully.',
+    user: toSafeUser(user),
+  })
+}
+
+export async function updateSavedItems(req, res) {
+  const userId = req.user?.id
+  if (!userId) {
+    res.status(401).json({ message: 'Not authenticated.' })
+    return
+  }
+
+  const payload = {
+    favouriteProductIds: req.body?.favouriteProductIds,
+    wishlistProductIds: req.body?.wishlistProductIds,
+  }
+
+  const { user, error } = await updateUserSavedItems(userId, payload)
+
+  if (error === 'not_found') {
+    res.status(404).json({ message: 'User not found.' })
+    return
+  }
+
+  res.json({
+    message: 'Saved items updated successfully.',
     user: toSafeUser(user),
   })
 }

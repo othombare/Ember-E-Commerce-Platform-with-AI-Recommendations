@@ -42,6 +42,8 @@ export function toSafeUser(user) {
     phone: user.phone ?? '',
     gender: user.gender ?? '',
     addresses: Array.isArray(user.addresses) ? user.addresses : [],
+    favouriteProductIds: Array.isArray(user.favouriteProductIds) ? user.favouriteProductIds : [],
+    wishlistProductIds: Array.isArray(user.wishlistProductIds) ? user.wishlistProductIds : [],
     sellerProfile: user.sellerProfile && typeof user.sellerProfile === 'object' ? user.sellerProfile : null,
     createdAt: user.createdAt ?? null,
     updatedAt: user.updatedAt ?? null,

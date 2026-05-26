@@ -10,8 +10,14 @@ import AllProducts from '../pages/products/AllProducts'
 import SearchResults from '../pages/products/SearchResults'
 import ProductDetails from '../pages/products/ProductDetails'
 import Favourites from '../pages/account/Favourites'
+import Wishlist from '../pages/account/Wishlist'
 import Notifications from '../pages/account/Notifications'
 import MyProfile from '../pages/account/MyProfile'
+import GiftCardsPage from '../pages/account/GiftCardsPage'
+import SavedUpiPage from '../pages/account/SavedUpiPage'
+import SavedCardsPage from '../pages/account/SavedCardsPage'
+import CouponsPage from '../pages/account/CouponsPage'
+import ReviewsPage from '../pages/account/ReviewsPage'
 import GenZPage from '../pages/collections/GenZPage'
 import NewCollectionsPage from '../pages/collections/NewCollectionsPage'
 import AIRecommendationsPage from '../pages/collections/AIRecommendationsPage'
@@ -53,8 +59,14 @@ function AppRouter() {
           <Route path="/checkout/review" element={<CheckoutReviewPage />} />
           <Route path="/admin/products" element={<ProductUploadPage />} />
           <Route path="/favourites" element={<Favourites />} />
+          <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/my-profile" element={<MyProfile />} />
+          <Route path="/account/gift-cards" element={<GiftCardsPage />} />
+          <Route path="/account/saved-upi" element={<SavedUpiPage />} />
+          <Route path="/account/saved-cards" element={<SavedCardsPage />} />
+          <Route path="/account/coupons" element={<CouponsPage />} />
+          <Route path="/account/reviews" element={<ReviewsPage />} />
           <Route path="/support/faq" element={<FAQPage />} />
           <Route path="/support/shipping-returns" element={<ShippingReturnsPage />} />
           <Route path="/support/size-guide" element={<SizeGuidePage />} />

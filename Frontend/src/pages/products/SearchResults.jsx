@@ -5,9 +5,11 @@ import StoreHeader from '../../components/layout/StoreHeader'
 import { categoryCatalog } from '../../data/categoryCatalog'
 import { PRODUCT_CATEGORIES } from '../../data/productCategories'
 import useCatalogProducts from '../../hooks/useCatalogProducts'
+import useSavedItems from '../../hooks/useSavedItems'
 import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { normalizeCategoryLabel, toCategoryRoute } from '../../utils/category'
+import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
 
 const priceRanges = [
@@ -44,7 +46,7 @@ const sortOptions = [
   { id: 'new-arrivals', label: 'New Arrivals' },
 ]
 
-function ProductTile({ onAddToCart, onOpenProduct, product }) {
+function ProductTile({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, onToggleFavourite, onToggleWishlist, product }) {
   return (
     <article
       className="border border-[#d8d8d8] bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg"
@@ -89,6 +91,32 @@ function ProductTile({ onAddToCart, onOpenProduct, product }) {
             Add
           </button>
         </div>
+        <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+          <button
+            className={`border py-1 text-[10px] transition ${
+              isFavourite ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
+            }`}
+            onClick={async (event) => {
+              event.stopPropagation()
+              await onToggleFavourite(product.id)
+            }}
+            type="button"
+          >
+            {isFavourite ? 'Favourited' : 'Favourite'}
+          </button>
+          <button
+            className={`border py-1 text-[10px] transition ${
+              isInWishlist ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
+            }`}
+            onClick={async (event) => {
+              event.stopPropagation()
+              await onToggleWishlist(product.id)
+            }}
+            type="button"
+          >
+            {isInWishlist ? 'Wishlisted' : 'Wishlist'}
+          </button>
+        </div>
       </div>
     </article>
   )
@@ -101,6 +129,7 @@ function SearchResults() {
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
+  const { favouriteProductIds, toggleFavourite, toggleWishlist, wishlistProductIds } = useSavedItems()
   const { categoryName } = useParams()
   const [searchParams] = useSearchParams()
   const queryFromUrl = searchParams.get('q') ?? ''
@@ -126,6 +155,8 @@ function SearchResults() {
   }
 
   const sortLabel = sortOptions.find((option) => option.id === selectedSort)?.label ?? 'Price Low to High'
+  const favouriteIdsSet = useMemo(() => new Set(favouriteProductIds), [favouriteProductIds])
+  const wishlistIdsSet = useMemo(() => new Set(wishlistProductIds), [wishlistProductIds])
 
   const filteredProducts = useMemo(() => {
     let items = [...listingProducts]
@@ -280,6 +311,7 @@ function SearchResults() {
           onNavLinkSelect={handleHeaderNavSelect}
           onOpenCart={handleOpenCartPage}
           onOpenFavourites={handleOpenFavouritesPage}
+          onOpenWishlist={() => navigate('/wishlist')}
           onOpenNotifications={handleOpenNotificationsPage}
           onOpenProfile={handleOpenProfilePage}
           onSearchChange={setSearchText}
@@ -448,7 +480,16 @@ function SearchResults() {
             {hasResults ? (
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredProducts.map((product) => (
-                  <ProductTile key={product.id} onAddToCart={handleAddToCart} onOpenProduct={handleOpenProduct} product={product} />
+                  <ProductTile
+                    isFavourite={favouriteIdsSet.has(normalizeProductId(product.id))}
+                    isInWishlist={wishlistIdsSet.has(normalizeProductId(product.id))}
+                    key={product.id}
+                    onAddToCart={handleAddToCart}
+                    onOpenProduct={handleOpenProduct}
+                    onToggleFavourite={toggleFavourite}
+                    onToggleWishlist={toggleWishlist}
+                    product={product}
+                  />
                 ))}
               </div>
             ) : (
