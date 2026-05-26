@@ -75,7 +75,7 @@ function Favourites() {
           onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
           onOpenNotifications={() => navigate('/notifications')}
-          onOpenProfile={() => navigate('/my-profile')}
+          onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
           onSearchChange={setSearchText}
           onSearchSubmit={handleSearchSubmit}
           searchText={searchText}
@@ -138,3 +138,4 @@ function Favourites() {
 }
 
 export default Favourites
+

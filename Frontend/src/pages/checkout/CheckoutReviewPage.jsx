@@ -379,7 +379,7 @@ function CheckoutReviewPage() {
             onOpenCart={() => navigate('/my-cart')}
             onOpenFavourites={() => navigate('/favourites')}
             onOpenNotifications={() => navigate('/notifications')}
-            onOpenProfile={() => navigate('/my-profile')}
+            onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
             onSearchChange={setSearchText}
             onSearchSubmit={handleSearchSubmit}
             searchText={searchText}
@@ -420,7 +420,7 @@ function CheckoutReviewPage() {
           onOpenCart={() => navigate('/my-cart')}
           onOpenFavourites={() => navigate('/favourites')}
           onOpenNotifications={() => navigate('/notifications')}
-          onOpenProfile={() => navigate('/my-profile')}
+          onOpenProfile={(section = 'profile') => navigate(section === 'profile' ? '/my-profile' : '/my-profile?section=' + section)}
           onSearchChange={setSearchText}
           onSearchSubmit={handleSearchSubmit}
           searchText={searchText}
@@ -780,7 +780,7 @@ function CheckoutReviewPage() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-medium text-[#2f2f2f]">{item.name}</p>
                       <p className="text-[11px] text-[#777]">
-                        {item.category} • Size {item.size} • Qty {item.quantity}
+                        {item.category} â€¢ Size {item.size} â€¢ Qty {item.quantity}
                       </p>
                       <p className="text-[12px] font-semibold text-[#232323]">Rs {item.price * item.quantity}</p>
                     </div>
@@ -826,3 +826,4 @@ function CheckoutReviewPage() {
 }
 
 export default CheckoutReviewPage
+

@@ -242,8 +242,8 @@ function SearchResults() {
     navigate('/notifications')
   }
 
-  const handleOpenProfilePage = () => {
-    navigate('/my-profile')
+  const handleOpenProfilePage = (section = 'profile') => {
+    navigate(section === 'profile' ? '/my-profile' : `/my-profile?section=${section}`)
   }
 
   const handleOpenCartPage = () => {

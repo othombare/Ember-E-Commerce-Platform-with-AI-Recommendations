@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import emberLogo from '../../assets/branding/ember-logo.svg'
 
 const headerLinks = [
@@ -27,6 +28,31 @@ function IconButton({ badge = null, children, label, onClick }) {
   )
 }
 
+function AccountMenu({ items, onItemClick }) {
+  return (
+    <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-[320px] rounded-2xl border border-[#dce2ea] bg-white p-4 shadow-[0_10px_30px_rgba(15,23,42,0.14)]">
+      <p className="px-2 text-[18px] font-semibold text-[#1f2933]">Your Account</p>
+      <div className="mt-2 space-y-1">
+        {items.map((item) => (
+          <button
+            className={`flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-[13px] text-[#2f3742] transition hover:bg-[#f6f8fb] ${
+              item.id === 'logout' ? 'mt-2 border-t border-[#eceff4] pt-3' : ''
+            }`}
+            key={item.id}
+            onClick={() => onItemClick(item)}
+            type="button"
+          >
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[#d2d8e2] text-[13px] text-[#374151]">
+              {item.icon}
+            </span>
+            {item.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function StoreHeader({
   activeCategory = null,
   activeNavLink = '',
@@ -49,6 +75,7 @@ function StoreHeader({
 }) {
   const cards = isCategoryPanelOpen && activeCategory ? categoryCatalog[activeCategory] ?? [] : []
   const showAuthActions = typeof onLogout === 'function'
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false)
 
   const handleSearchSubmit = () => {
     if (typeof onSearchSubmit === 'function') {
@@ -61,6 +88,130 @@ function StoreHeader({
       onSearchChange(event.target.value)
     }
   }
+
+  const handleBecomeSeller = () => {
+    if (typeof onNavLinkSelect === 'function') {
+      onNavLinkSelect('become-seller')
+    }
+    setIsAccountMenuOpen(false)
+  }
+
+  const accountMenuItems = useMemo(
+    () => [
+      {
+        icon: 'P',
+        id: 'profile',
+        label: 'My Profile',
+        onClick: () => {
+          if (typeof onOpenProfile === 'function') {
+            onOpenProfile('profile')
+          }
+        },
+      },
+      {
+        icon: 'O',
+        id: 'orders',
+        label: 'Orders',
+        onClick: () => {
+          if (typeof onOpenProfile === 'function') {
+            onOpenProfile('orders')
+          }
+        },
+      },
+      {
+        icon: 'C',
+        id: 'coupons',
+        label: 'Coupons',
+        onClick: () => {
+          if (typeof onOpenProfile === 'function') {
+            onOpenProfile('profile')
+          }
+        },
+      },
+      {
+        icon: 'S',
+        id: 'supercoin',
+        label: 'Supercoin',
+        onClick: () => {
+          if (typeof onOpenProfile === 'function') {
+            onOpenProfile('profile')
+          }
+        },
+      },
+      {
+        icon: 'W',
+        id: 'wallet',
+        label: 'Saved Cards & Wallet',
+        onClick: () => {
+          if (typeof onOpenProfile === 'function') {
+            onOpenProfile('profile')
+          }
+        },
+      },
+      {
+        icon: 'A',
+        id: 'addresses',
+        label: 'Saved Addresses',
+        onClick: () => {
+          if (typeof onOpenProfile === 'function') {
+            onOpenProfile('addresses')
+          }
+        },
+      },
+      {
+        icon: 'L',
+        id: 'wishlist',
+        label: 'Wishlist',
+        onClick: () => {
+          if (typeof onOpenFavourites === 'function') {
+            onOpenFavourites()
+          }
+        },
+      },
+      {
+        icon: 'N',
+        id: 'notifications',
+        label: 'Notifications',
+        onClick: () => {
+          if (typeof onOpenNotifications === 'function') {
+            onOpenNotifications()
+          }
+        },
+      },
+      {
+        icon: 'X',
+        id: 'logout',
+        label: 'Logout',
+        onClick: () => {
+          if (typeof onLogout === 'function') {
+            onLogout()
+          }
+        },
+      },
+    ],
+    [onLogout, onOpenFavourites, onOpenNotifications, onOpenProfile],
+  )
+
+  useEffect(() => {
+    if (!isAccountMenuOpen) {
+      return
+    }
+
+    const closeOnOutsideClick = (event) => {
+      if (!(event.target instanceof Element)) {
+        return
+      }
+
+      if (!event.target.closest('[data-account-menu-wrapper="true"]')) {
+        setIsAccountMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('pointerdown', closeOnOutsideClick)
+    return () => {
+      window.removeEventListener('pointerdown', closeOnOutsideClick)
+    }
+  }, [isAccountMenuOpen])
 
   return (
     <section className="border border-[#dadada] bg-white">
@@ -157,15 +308,35 @@ function StoreHeader({
           </IconButton>
 
           {showAuthActions ? (
-            <div className="hidden items-center gap-2 lg:flex">
-              <p className="text-[13px] text-[#5f5f5f]">Hi, {userName}</p>
+            <div className="relative hidden items-center gap-2 lg:flex" data-account-menu-wrapper="true">
               <button
-                className="h-8 rounded-md bg-[#1f2125] px-3 text-[12px] font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:bg-black"
-                onClick={onLogout}
+                className="flex items-center gap-2 rounded-md px-2 py-1 text-[13px] text-[#31353b] transition hover:bg-[#f3f5f8]"
+                onClick={() => setIsAccountMenuOpen((previous) => !previous)}
                 type="button"
               >
-                Logout
+                <span>Hi, {userName}</span>
+                <svg className="h-3 w-3 text-[#4b5563]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </button>
+
+              <button
+                className="h-9 rounded-sm border border-[#d5b800] bg-[#f9d400] px-3 text-[12px] font-semibold text-[#1f1f1f] transition duration-200 hover:bg-[#ffd400]"
+                onClick={handleBecomeSeller}
+                type="button"
+              >
+                Become Seller
+              </button>
+
+              {isAccountMenuOpen ? (
+                <AccountMenu
+                  items={accountMenuItems}
+                  onItemClick={(item) => {
+                    item.onClick()
+                    setIsAccountMenuOpen(false)
+                  }}
+                />
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -193,11 +364,35 @@ function StoreHeader({
       </label>
 
       {showAuthActions ? (
-        <div className="mx-6 mb-3 mt-1 flex items-center justify-between rounded-md border border-[#dfdfdf] bg-[#f8f8f8] px-3 py-2 text-[12px] text-[#5f5f5f] lg:hidden">
-          <p>Hi, {userName}</p>
-          <button className="rounded bg-[#1f2125] px-2.5 py-1 text-[11px] font-medium text-white" onClick={onLogout} type="button">
-            Logout
+        <div
+          className="relative mx-6 mb-3 mt-1 flex items-center justify-between rounded-md border border-[#dfdfdf] bg-[#f8f8f8] px-3 py-2 text-[12px] text-[#5f5f5f] lg:hidden"
+          data-account-menu-wrapper="true"
+        >
+          <button className="flex items-center gap-1 text-[12px] text-[#31353b]" onClick={() => setIsAccountMenuOpen((previous) => !previous)} type="button">
+            Hi, {userName}
+            <svg className="h-3 w-3 text-[#4b5563]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </button>
+          <div className="flex items-center gap-2">
+            <button
+              className="rounded border border-[#d5b800] bg-[#f9d400] px-2.5 py-1 text-[11px] font-medium text-[#1f1f1f]"
+              onClick={handleBecomeSeller}
+              type="button"
+            >
+              Become Seller
+            </button>
+          </div>
+
+          {isAccountMenuOpen ? (
+            <AccountMenu
+              items={accountMenuItems}
+              onItemClick={(item) => {
+                item.onClick()
+                setIsAccountMenuOpen(false)
+              }}
+            />
+          ) : null}
         </div>
       ) : null}
 

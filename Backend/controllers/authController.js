@@ -1,5 +1,11 @@
 import bcrypt from 'bcryptjs'
-import { createUser, findUserByEmail, findUserById, updateUserProfile } from '../models/userModel.js'
+import {
+  createUser,
+  findUserByEmail,
+  findUserById,
+  updateSellerProfile,
+  updateUserProfile,
+} from '../models/userModel.js'
 import { signAuthToken, toSafeUser } from '../utils/auth.js'
 
 function normalizeEmail(email) {
@@ -132,6 +138,7 @@ export async function updateProfile(req, res) {
     name: req.body?.name,
     email: req.body?.email,
     phone: req.body?.phone,
+    gender: req.body?.gender,
     addresses: req.body?.addresses,
   }
 
@@ -154,6 +161,53 @@ export async function updateProfile(req, res) {
 
   res.json({
     message: 'Profile updated successfully.',
+    user: toSafeUser(user),
+  })
+}
+
+export async function submitSellerApplication(req, res) {
+  const userId = req.user?.id
+  if (!userId) {
+    res.status(401).json({ message: 'Not authenticated.' })
+    return
+  }
+
+  const payload = {
+    businessName: req.body?.businessName,
+    ownerName: req.body?.ownerName,
+    email: req.body?.email,
+    contactPhone: req.body?.contactPhone,
+    hasGstin: req.body?.hasGstin,
+    gstin: req.body?.gstin,
+    panNumber: req.body?.panNumber,
+    pickupAddressLine1: req.body?.pickupAddressLine1,
+    pickupAddressLine2: req.body?.pickupAddressLine2,
+    city: req.body?.city,
+    state: req.body?.state,
+    pincode: req.body?.pincode,
+    categories: req.body?.categories,
+    bankAccountHolder: req.body?.bankAccountHolder,
+    bankAccountNumber: req.body?.bankAccountNumber,
+    ifsc: req.body?.ifsc,
+    notes: req.body?.notes,
+  }
+
+  const { user, error } = await updateSellerProfile(userId, payload)
+
+  if (error === 'not_found') {
+    res.status(404).json({ message: 'User not found.' })
+    return
+  }
+
+  if (error === 'invalid_seller_profile') {
+    res.status(400).json({
+      message: 'Please complete required seller onboarding fields before submitting.',
+    })
+    return
+  }
+
+  res.json({
+    message: 'Seller application submitted successfully.',
     user: toSafeUser(user),
   })
 }

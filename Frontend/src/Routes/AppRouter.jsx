@@ -22,6 +22,7 @@ import FAQPage from '../pages/support/FAQPage'
 import ShippingReturnsPage from '../pages/support/ShippingReturnsPage'
 import SizeGuidePage from '../pages/support/SizeGuidePage'
 import ContactUsPage from '../pages/support/ContactUsPage'
+import BecomeSellerPage from '../pages/seller/BecomeSellerPage'
 
 function HomeRedirect() {
   const token = useAuthStore((state) => state.token)
@@ -58,6 +59,7 @@ function AppRouter() {
           <Route path="/support/shipping-returns" element={<ShippingReturnsPage />} />
           <Route path="/support/size-guide" element={<SizeGuidePage />} />
           <Route path="/support/contact-us" element={<ContactUsPage />} />
+          <Route path="/become-seller" element={<BecomeSellerPage />} />
           <Route path="/account" element={<Navigate replace to="/my-profile" />} />
         </Route>
 

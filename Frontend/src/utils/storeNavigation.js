@@ -2,6 +2,7 @@ export const specialHeaderRoutes = {
   genz: '/genz',
   'new-collections': '/new-collections',
   'ai-recommendations': '/ai-recommendations',
+  'become-seller': '/become-seller',
 }
 
 export function getSpecialHeaderRoute(navId) {

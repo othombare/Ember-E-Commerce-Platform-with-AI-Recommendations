@@ -40,7 +40,9 @@ export function toSafeUser(user) {
     email: user.email,
     role: user.role ?? 'customer',
     phone: user.phone ?? '',
+    gender: user.gender ?? '',
     addresses: Array.isArray(user.addresses) ? user.addresses : [],
+    sellerProfile: user.sellerProfile && typeof user.sellerProfile === 'object' ? user.sellerProfile : null,
     createdAt: user.createdAt ?? null,
     updatedAt: user.updatedAt ?? null,
   }
