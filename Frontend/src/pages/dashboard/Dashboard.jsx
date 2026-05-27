@@ -16,8 +16,18 @@ import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
 import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+import { getCartButtonLabel, isProductInCart } from '../../utils/productActionState'
 
-function ProductCard({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, onToggleFavourite, onToggleWishlist, product }) {
+function ProductCard({
+  isFavourite,
+  isInCart,
+  isInWishlist,
+  onAddToCart,
+  onOpenProduct,
+  onToggleFavourite,
+  onToggleWishlist,
+  product,
+}) {
   const [isImageError, setIsImageError] = useState(false)
 
   return (
@@ -60,7 +70,7 @@ function ProductCard({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, on
         </p>
         <div className="mt-3 flex gap-2">
           <button
-            className="h-9 flex-1 rounded-md border border-[#cecece] text-[12px] text-[#2d2d2d] transition hover:bg-[#f6f6f6]"
+            className="h-9 flex-1 rounded-md border border-[#cecece] text-[12px] text-[#2d2d2d] transition duration-200 hover:-translate-y-0.5 hover:border-[#bdbdbd] hover:bg-[#f6f6f6] hover:shadow-sm"
             onClick={(event) => {
               event.stopPropagation()
               onOpenProduct(product.id)
@@ -70,20 +80,24 @@ function ProductCard({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, on
             View
           </button>
           <button
-            className="h-9 flex-1 rounded-md bg-[#1f2125] text-[12px] font-medium text-white transition hover:bg-black"
+            className={`h-9 flex-1 rounded-md px-4 text-[12px] font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+              isInCart ? 'bg-[#17191d] hover:bg-black' : 'bg-[#1f2125] hover:bg-black'
+            }`}
             onClick={(event) => {
               event.stopPropagation()
               onAddToCart(product)
             }}
             type="button"
           >
-            Add to Cart
+            {getCartButtonLabel(isInCart)}
           </button>
         </div>
         <div className="mt-2 grid grid-cols-2 gap-2">
           <button
-            className={`h-8 rounded-md border text-[11px] transition ${
-              isFavourite ? 'border-[#222] bg-[#222] text-white' : 'border-[#cecece] text-[#2d2d2d] hover:bg-[#f6f6f6]'
+            className={`h-8 rounded-md border text-[11px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
+              isFavourite
+                ? 'border-[#222] bg-[#222] text-white hover:bg-[#111]'
+                : 'border-[#cecece] text-[#2d2d2d] hover:bg-[#f6f6f6]'
             }`}
             onClick={async (event) => {
               event.stopPropagation()
@@ -94,8 +108,10 @@ function ProductCard({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, on
             {isFavourite ? 'Favourited' : 'Favourite'}
           </button>
           <button
-            className={`h-8 rounded-md border text-[11px] transition ${
-              isInWishlist ? 'border-[#1f2125] bg-[#1f2125] text-white' : 'border-[#cecece] text-[#2d2d2d] hover:bg-[#f6f6f6]'
+            className={`h-8 rounded-md border text-[11px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
+              isInWishlist
+                ? 'border-[#1f2125] bg-[#1f2125] text-white hover:bg-[#111]'
+                : 'border-[#cecece] text-[#2d2d2d] hover:bg-[#f6f6f6]'
             }`}
             onClick={async (event) => {
               event.stopPropagation()
@@ -111,7 +127,17 @@ function ProductCard({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, on
   )
 }
 
-function ProductSection({ onAddToCart, onOpenProduct, onToggleFavourite, onToggleWishlist, products, savedItemsLookup, subtitle, title }) {
+function ProductSection({
+  cartItemLookup,
+  onAddToCart,
+  onOpenProduct,
+  onToggleFavourite,
+  onToggleWishlist,
+  products,
+  savedItemsLookup,
+  subtitle,
+  title,
+}) {
   if (products.length === 0) {
     return null
   }
@@ -133,6 +159,7 @@ function ProductSection({ onAddToCart, onOpenProduct, onToggleFavourite, onToggl
           const normalizedProductId = normalizeProductId(product.id)
           return (
           <ProductCard
+            isInCart={Boolean(cartItemLookup?.[normalizedProductId])}
             isFavourite={Boolean(savedItemsLookup[normalizedProductId]?.isFavourite)}
             isInWishlist={Boolean(savedItemsLookup[normalizedProductId]?.isInWishlist)}
             key={`${title}-${product.id}`}
@@ -155,6 +182,7 @@ function Dashboard() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
+  const cartItems = useCartStore((state) => state.items)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const { favouriteProductIds, toggleFavourite, toggleWishlist, wishlistProductIds } = useSavedItems()
 
@@ -228,6 +256,15 @@ function Dashboard() {
       return lookup
     }, {})
   }, [favouriteProductIds, products, wishlistProductIds])
+
+  const cartItemLookup = useMemo(() => {
+    return products.reduce((lookup, product) => {
+      const normalizedProductId = normalizeProductId(product.id)
+
+      lookup[normalizedProductId] = isProductInCart(cartItems, product.id, product.sizes?.[0] ?? 'M')
+      return lookup
+    }, {})
+  }, [cartItems, products])
 
   return (
     <main className="min-h-screen w-full bg-[#3f3f42] text-[#202020]">
@@ -323,6 +360,7 @@ function Dashboard() {
             savedItemsLookup={savedItemsLookup}
             subtitle="Latest drops curated across men, women, and kids."
             title=""
+            cartItemLookup={cartItemLookup}
           />
 
           <ProductSection
@@ -334,6 +372,7 @@ function Dashboard() {
             savedItemsLookup={savedItemsLookup}
             subtitle="Everyday wardrobe essentials with premium quality finish."
             title="Featured Collection"
+            cartItemLookup={cartItemLookup}
           />
 
           <section className="mt-12">
@@ -357,6 +396,7 @@ function Dashboard() {
             savedItemsLookup={savedItemsLookup}
             subtitle="Personalized picks tuned from customer trends and product affinity."
             title="AI Recommendations"
+            cartItemLookup={cartItemLookup}
           />
 
           <ProductSection
@@ -368,6 +408,7 @@ function Dashboard() {
             savedItemsLookup={savedItemsLookup}
             subtitle="Top selling pieces loved by the Ember community."
             title="Best Sellers"
+            cartItemLookup={cartItemLookup}
           />
 
           <div className="mt-9 flex justify-center">

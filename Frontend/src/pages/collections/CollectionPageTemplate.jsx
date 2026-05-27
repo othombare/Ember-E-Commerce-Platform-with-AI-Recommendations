@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import StoreFooter from '../../components/layout/StoreFooter'
 import StoreHeader from '../../components/layout/StoreHeader'
@@ -7,16 +7,19 @@ import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+import { getCartButtonLabel, isProductInCart } from '../../utils/productActionState'
 
-function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTitle, products }) {
+function CollectionPageTemplate({ activeNavLink, heroCtaLabel, heroImage, pageSubtitle, pageTitle, products }) {
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
+  const cartItems = useCartStore((state) => state.items)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
+  const productsSectionRef = useRef(null)
 
   const filteredProducts = useMemo(() => {
     const normalizedSearch = searchText.toLowerCase().trim()
@@ -61,6 +64,10 @@ function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTi
     navigate(toSearchResultsRoute(searchText))
   }
 
+  const scrollToProducts = () => {
+    productsSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   return (
     <main className="min-h-screen w-full bg-[#3f3f42] text-[#202020]">
       <div className="w-full min-h-screen bg-[#f4f3f1]">
@@ -87,8 +94,21 @@ function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTi
         />
 
         <section className="px-4 py-4 sm:px-6">
-          <div className="overflow-hidden rounded-xl border border-[#d6d6d6] bg-white shadow-sm">
+          <div className="relative overflow-hidden rounded-xl border border-[#d6d6d6] bg-white shadow-sm">
             <img alt={`${pageTitle} hero`} className="w-full object-cover" src={heroImage} />
+            {heroCtaLabel ? (
+              <button
+                className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full border border-white/65 bg-black/70 px-4 py-2 text-[12px] font-semibold tracking-[0.08em] text-white backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:bg-black hover:shadow-lg"
+                onClick={scrollToProducts}
+                type="button"
+              >
+                <span>{heroCtaLabel}</span>
+                <svg aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M5 12h14" strokeLinecap="round" />
+                  <path d="m13 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            ) : null}
           </div>
           <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -99,8 +119,15 @@ function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTi
           </div>
 
           {filteredProducts.length > 0 ? (
-            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {filteredProducts.map((product) => (
+            <div
+              className="mt-5 grid gap-4 scroll-mt-28 sm:grid-cols-2 xl:grid-cols-4"
+              ref={productsSectionRef}
+              id="collection-products"
+            >
+              {filteredProducts.map((product) => {
+                const hasProductInCart = isProductInCart(cartItems, product.id, product.sizes?.[0] ?? 'M')
+
+                return (
                 <article
                   className="group overflow-hidden rounded-lg border border-[#dcdcdc] bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg"
                   key={product.id}
@@ -126,7 +153,9 @@ function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTi
                       <span className="text-[#daa520]">*</span> {product.rating.toFixed(1)} ({product.reviews})
                     </p>
                     <button
-                      className="mt-3 h-9 w-full rounded-md bg-[#1f2125] text-[13px] font-medium text-white transition hover:bg-black"
+                      className={`mt-3 h-9 w-full rounded-md px-4 text-[13px] font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+                        hasProductInCart ? 'bg-[#17191d] hover:bg-black' : 'bg-[#1f2125] hover:bg-black'
+                      }`}
                       onClick={(event) => {
                         event.stopPropagation()
                         addToCart({ product, quantity: 1, size: product.sizes?.[0] ?? 'M' })
@@ -134,11 +163,12 @@ function CollectionPageTemplate({ activeNavLink, heroImage, pageSubtitle, pageTi
                       }}
                       type="button"
                     >
-                      Add to Cart
+                      {getCartButtonLabel(hasProductInCart)}
                     </button>
                   </div>
                 </article>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div className="mt-8 rounded-lg border border-[#dddddd] bg-white p-8 text-center">

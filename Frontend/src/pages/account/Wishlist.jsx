@@ -10,6 +10,7 @@ import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
 import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+import { getCartButtonLabel, getFavouriteButtonLabel, isProductInCart } from '../../utils/productActionState'
 
 function Wishlist() {
   const navigate = useNavigate()
@@ -17,8 +18,9 @@ function Wishlist() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
+  const cartItems = useCartStore((state) => state.items)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
-  const { addToFavourites, removeFromWishlist, wishlistProductIds } = useSavedItems()
+  const { addToFavourites, isFavourite, removeFromWishlist, wishlistProductIds } = useSavedItems()
   const [searchText, setSearchText] = useState('')
   const [activeCategory, setActiveCategory] = useState(null)
   const [isCategoryPanelOpen, setIsCategoryPanelOpen] = useState(false)
@@ -102,7 +104,7 @@ function Wishlist() {
                 <p className="mt-1 text-[14px] font-semibold text-[#222]">Rs {item.price}</p>
                 <div className="mt-2 grid gap-2">
                   <button
-                    className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]"
+                    className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition duration-200 hover:-translate-y-0.5 hover:border-[#b9b9b9] hover:bg-[#f5f5f5] hover:shadow-sm"
                     onClick={async () => {
                       const result = await removeFromWishlist(item.id)
                       setStatusMessage(result.ok ? `${item.name} removed from wishlist.` : result.error)
@@ -112,21 +114,27 @@ function Wishlist() {
                     Remove
                   </button>
                   <button
-                    className="border border-[#d3d3d3] px-2 py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]"
+                    className={`border px-2 py-1 text-[11px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
+                      isFavourite(item.id)
+                        ? 'border-[#222] bg-[#222] text-white hover:bg-[#111]'
+                        : 'border-[#d3d3d3] text-[#3f3f3f] hover:border-[#b9b9b9] hover:bg-[#f5f5f5]'
+                    }`}
                     onClick={async () => {
                       const result = await addToFavourites(item.id)
                       setStatusMessage(result.ok ? `${item.name} added to favourites.` : result.error)
                     }}
                     type="button"
                   >
-                    Add to Favourites
+                    {getFavouriteButtonLabel(isFavourite(item.id))}
                   </button>
                   <button
-                    className="bg-[#1f2125] px-2 py-1 text-[11px] text-white transition hover:bg-black"
+                    className={`px-2 py-1 text-[11px] text-white transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+                      isProductInCart(cartItems, item.id, item.sizes?.[0] ?? 'M') ? 'bg-[#17191d] hover:bg-black' : 'bg-[#1f2125] hover:bg-black'
+                    }`}
                     onClick={() => addToCart({ product: item, quantity: 1, size: item.sizes?.[0] ?? 'M' })}
                     type="button"
                   >
-                    Add to Cart
+                    {getCartButtonLabel(isProductInCart(cartItems, item.id, item.sizes?.[0] ?? 'M'))}
                   </button>
                 </div>
               </article>

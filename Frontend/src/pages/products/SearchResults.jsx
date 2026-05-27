@@ -11,6 +11,7 @@ import useCartStore from '../../store/cartStore'
 import { normalizeCategoryLabel, toCategoryRoute } from '../../utils/category'
 import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+import { getCartButtonLabel, isProductInCart } from '../../utils/productActionState'
 
 const priceRanges = [
   { id: 'under-500', label: 'Less than Rs 500', min: 0, max: 499 },
@@ -46,7 +47,16 @@ const sortOptions = [
   { id: 'new-arrivals', label: 'New Arrivals' },
 ]
 
-function ProductTile({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, onToggleFavourite, onToggleWishlist, product }) {
+function ProductTile({
+  isAddedToCart,
+  isFavourite,
+  isInWishlist,
+  onAddToCart,
+  onOpenProduct,
+  onToggleFavourite,
+  onToggleWishlist,
+  product,
+}) {
   return (
     <article
       className="border border-[#d8d8d8] bg-white transition duration-200 hover:-translate-y-0.5 hover:shadow-lg"
@@ -71,7 +81,7 @@ function ProductTile({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, on
         </div>
         <div className="mt-2 flex gap-1.5">
           <button
-            className="flex-1 border border-[#d4d4d4] py-1 text-[10px] text-[#353535] transition hover:bg-[#f6f6f6]"
+            className="flex-1 border border-[#d4d4d4] py-1 text-[10px] text-[#353535] transition duration-200 hover:-translate-y-0.5 hover:border-[#b8b8b8] hover:bg-[#f6f6f6] hover:shadow-sm"
             onClick={(event) => {
               event.stopPropagation()
               onOpenProduct(product)
@@ -81,20 +91,22 @@ function ProductTile({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, on
             View
           </button>
           <button
-            className="flex-1 bg-[#1f2125] py-1 text-[10px] text-white transition hover:bg-black"
+            className={`flex-1 py-1 text-[10px] text-white transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+              isAddedToCart ? 'bg-[#17191d] hover:bg-black' : 'bg-[#1f2125] hover:bg-black'
+            }`}
             onClick={(event) => {
               event.stopPropagation()
               onAddToCart(product)
             }}
             type="button"
           >
-            Add
+            {getCartButtonLabel(isAddedToCart)}
           </button>
         </div>
         <div className="mt-1.5 grid grid-cols-2 gap-1.5">
           <button
-            className={`border py-1 text-[10px] transition ${
-              isFavourite ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
+            className={`border py-1 text-[10px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
+              isFavourite ? 'border-[#222] bg-[#222] text-white hover:bg-[#111]' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
             }`}
             onClick={async (event) => {
               event.stopPropagation()
@@ -105,8 +117,8 @@ function ProductTile({ isFavourite, isInWishlist, onAddToCart, onOpenProduct, on
             {isFavourite ? 'Favourited' : 'Favourite'}
           </button>
           <button
-            className={`border py-1 text-[10px] transition ${
-              isInWishlist ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
+            className={`border py-1 text-[10px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
+              isInWishlist ? 'border-[#222] bg-[#222] text-white hover:bg-[#111]' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
             }`}
             onClick={async (event) => {
               event.stopPropagation()
@@ -128,6 +140,7 @@ function SearchResults() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
+  const cartItems = useCartStore((state) => state.items)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const { favouriteProductIds, toggleFavourite, toggleWishlist, wishlistProductIds } = useSavedItems()
   const { categoryName } = useParams()
@@ -481,6 +494,7 @@ function SearchResults() {
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredProducts.map((product) => (
                   <ProductTile
+                    isAddedToCart={isProductInCart(cartItems, product.id, product.sizes?.[0] ?? 'M')}
                     isFavourite={favouriteIdsSet.has(normalizeProductId(product.id))}
                     isInWishlist={wishlistIdsSet.has(normalizeProductId(product.id))}
                     key={product.id}

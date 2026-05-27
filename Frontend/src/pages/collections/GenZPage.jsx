@@ -8,6 +8,7 @@ function GenZPage() {
   return (
     <CollectionPageTemplate
       activeNavLink="genz"
+      heroCtaLabel="Shop Now"
       heroImage={genzHero}
       pageSubtitle="Fresh street-inspired looks designed for bold daily styling."
       pageTitle="GenZ"

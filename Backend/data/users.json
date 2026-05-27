@@ -55,11 +55,14 @@
         "isDefault": true
       }
     ],
-    "updatedAt": "2026-05-26T18:48:47.698Z",
+    "updatedAt": "2026-05-27T21:43:59.648Z",
     "gender": "",
     "sellerProfile": null,
     "favouriteProductIds": [],
-    "wishlistProductIds": []
+    "wishlistProductIds": [
+      "rose-drape-saree",
+      "junior-graphic-tee"
+    ]
   },
   {
     "id": "RiJv0a9QNPZj",

@@ -8,6 +8,7 @@ function NewCollectionsPage() {
   return (
     <CollectionPageTemplate
       activeNavLink="new-collections"
+      heroCtaLabel="Shop All New"
       heroImage={newCollectionsHero}
       pageSubtitle="The latest handcrafted edits across modern essentials and elevated fits."
       pageTitle="New Collections"

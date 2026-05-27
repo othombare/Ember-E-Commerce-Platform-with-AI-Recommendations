@@ -9,6 +9,7 @@ import useAuthStore from '../../store/authStore'
 import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+import { getCartButtonLabel, isProductInCart } from '../../utils/productActionState'
 
 function ProductDetails() {
   const { productId } = useParams()
@@ -17,6 +18,7 @@ function ProductDetails() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
+  const cartItems = useCartStore((state) => state.items)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const { isFavourite, isInWishlist, toggleFavourite, toggleWishlist } = useSavedItems()
 
@@ -27,6 +29,7 @@ function ProductDetails() {
   const [quantity, setQuantity] = useState(1)
 
   const product = useMemo(() => findProductById(productId), [findProductById, productId])
+  const isCurrentProductInCart = product ? isProductInCart(cartItems, product.id, selectedSize) : false
 
   const gallery = useMemo(() => {
     if (!product) {
@@ -220,17 +223,19 @@ function ProductDetails() {
                       </button>
                     </div>
                     <button
-                      className="h-9 flex-1 bg-[#1e1f22] px-5 text-[13px] font-medium text-white transition hover:bg-black"
+                      className={`h-9 flex-1 px-5 text-[13px] font-medium text-white transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+                        isCurrentProductInCart ? 'bg-[#17191d] hover:bg-black' : 'bg-[#1e1f22] hover:bg-black'
+                      }`}
                       onClick={handleAddToCart}
                       type="button"
                     >
-                      Add to Cart
+                      {getCartButtonLabel(isCurrentProductInCart)}
                     </button>
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-3">
                     <button
-                      className={`h-9 border px-4 text-[12px] transition ${
+                      className={`h-9 border px-4 text-[12px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
                         product && isFavourite(product.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#c8c8c8] text-[#444] hover:bg-[#f5f5f5]'
                       }`}
                       onClick={async () => {
@@ -244,7 +249,7 @@ function ProductDetails() {
                       {product && isFavourite(product.id) ? 'Favourited' : 'Add to Favourites'}
                     </button>
                     <button
-                      className={`h-9 border px-4 text-[12px] transition ${
+                      className={`h-9 border px-4 text-[12px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
                         product && isInWishlist(product.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#c8c8c8] text-[#444] hover:bg-[#f5f5f5]'
                       }`}
                       onClick={async () => {
@@ -284,7 +289,7 @@ function ProductDetails() {
                       <p className="mt-1 text-[14px] font-semibold">Rs {entry.price}</p>
                       <div className="mt-2 grid grid-cols-2 gap-2">
                         <button
-                          className={`border py-1 text-[10px] transition ${
+                          className={`border py-1 text-[10px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
                             isFavourite(entry.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
                           }`}
                           onClick={async (event) => {
@@ -296,7 +301,7 @@ function ProductDetails() {
                           {isFavourite(entry.id) ? 'Favourited' : 'Favourite'}
                         </button>
                         <button
-                          className={`border py-1 text-[10px] transition ${
+                          className={`border py-1 text-[10px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
                             isInWishlist(entry.id) ? 'border-[#222] bg-[#222] text-white' : 'border-[#d4d4d4] text-[#353535] hover:bg-[#f6f6f6]'
                           }`}
                           onClick={async (event) => {

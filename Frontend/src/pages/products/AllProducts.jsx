@@ -11,6 +11,7 @@ import useCartStore from '../../store/cartStore'
 import { toCategoryRoute } from '../../utils/category'
 import { normalizeProductId } from '../../utils/productId'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+import { getCartButtonLabel, isProductInCart } from '../../utils/productActionState'
 
 const sizeFilters = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL']
 const ratingFilters = [5, 4, 3, 2, 1]
@@ -38,6 +39,7 @@ function AllProducts() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const addToCart = useCartStore((state) => state.addToCart)
+  const cartItems = useCartStore((state) => state.items)
   const cartItemCount = useCartStore((state) => state.items.reduce((total, item) => total + item.quantity, 0))
   const { favouriteProductIds, toggleFavourite, toggleWishlist, wishlistProductIds } = useSavedItems()
   const [searchText, setSearchText] = useState('')
@@ -380,7 +382,7 @@ function AllProducts() {
                     </p>
                     <div className="mt-2 flex gap-2">
                       <button
-                        className="flex-1 border border-[#cfcfcf] py-1 text-[11px] text-[#3f3f3f] transition hover:bg-[#f5f5f5]"
+                        className="flex-1 border border-[#cfcfcf] py-1 text-[11px] text-[#3f3f3f] transition duration-200 hover:-translate-y-0.5 hover:border-[#b5b5b5] hover:bg-[#f5f5f5] hover:shadow-sm"
                         onClick={(event) => {
                           event.stopPropagation()
                           navigate(`/product/${product.id}`)
@@ -390,21 +392,25 @@ function AllProducts() {
                         View
                       </button>
                       <button
-                        className="flex-1 bg-[#1f2125] py-1 text-[11px] text-white transition hover:bg-black"
+                        className={`flex-1 py-1 text-[11px] text-white transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+                          isProductInCart(cartItems, product.id, product.sizes?.[0] ?? 'M')
+                            ? 'bg-[#17191d] hover:bg-black'
+                            : 'bg-[#1f2125] hover:bg-black'
+                        }`}
                         onClick={(event) => {
                           event.stopPropagation()
                           handleAddToCart(product)
                         }}
                         type="button"
                       >
-                        Add
+                        {getCartButtonLabel(isProductInCart(cartItems, product.id, product.sizes?.[0] ?? 'M'))}
                       </button>
                     </div>
                     <div className="mt-2 grid grid-cols-2 gap-2">
                       <button
-                        className={`border py-1 text-[11px] transition ${
+                        className={`border py-1 text-[11px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
                           favouriteIdsSet.has(normalizedProductId)
-                            ? 'border-[#222] bg-[#222] text-white'
+                            ? 'border-[#222] bg-[#222] text-white hover:bg-[#111]'
                             : 'border-[#cfcfcf] text-[#3f3f3f] hover:bg-[#f5f5f5]'
                         }`}
                         onClick={async (event) => {
@@ -416,9 +422,9 @@ function AllProducts() {
                         {favouriteIdsSet.has(normalizedProductId) ? 'Favourited' : 'Favourite'}
                       </button>
                       <button
-                        className={`border py-1 text-[11px] transition ${
+                        className={`border py-1 text-[11px] transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${
                           wishlistIdsSet.has(normalizedProductId)
-                            ? 'border-[#222] bg-[#222] text-white'
+                            ? 'border-[#222] bg-[#222] text-white hover:bg-[#111]'
                             : 'border-[#cfcfcf] text-[#3f3f3f] hover:bg-[#f5f5f5]'
                         }`}
                         onClick={async (event) => {

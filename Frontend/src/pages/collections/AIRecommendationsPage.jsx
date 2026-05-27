@@ -8,6 +8,7 @@ function AIRecommendationsPage() {
   return (
     <CollectionPageTemplate
       activeNavLink="ai-recommendations"
+      heroCtaLabel="Explore Now"
       heroImage={aiRecommendationsHero}
       pageSubtitle="Personalized picks tuned to your style preferences and popular trends."
       pageTitle="AI Recommendations"
