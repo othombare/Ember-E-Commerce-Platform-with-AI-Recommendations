@@ -1,5 +1,103 @@
 [
   {
+    "id": "EMBER-OLPY9R6OGN",
+    "user": {
+      "id": "esK6kWCULf6A",
+      "email": "admin@interiorerp.local",
+      "name": "onkar"
+    },
+    "items": [
+      {
+        "id": "slate-runner-joggers::M",
+        "productId": "slate-runner-joggers",
+        "name": "Slate Runner Joggers",
+        "image": "http://localhost:5000/uploads/products/midnight-run-joggers.svg",
+        "category": "Joggers",
+        "size": "M",
+        "price": 1249,
+        "oldPrice": 1799,
+        "quantity": 1
+      }
+    ],
+    "itemCount": 1,
+    "subtotal": 1249,
+    "shipping": 99,
+    "tax": 100,
+    "total": 1448,
+    "shippingAddress": {
+      "id": "addr_1779821327594",
+      "label": "Homegvxv",
+      "fullName": "dsfsgs",
+      "phone": "",
+      "line1": "sfgb",
+      "line2": "sfg",
+      "city": "sdfg",
+      "state": "fsg",
+      "pincode": "sfgb",
+      "country": "Indiasfg"
+    },
+    "payment": {
+      "method": "COD",
+      "channel": "COD",
+      "status": "pending",
+      "transactionRef": null,
+      "paidAt": null
+    },
+    "notes": null,
+    "status": "Placed",
+    "createdAt": "2026-05-27T22:29:13.147Z",
+    "updatedAt": "2026-05-27T22:29:13.147Z"
+  },
+  {
+    "id": "EMBER-PC2YOJMWRS",
+    "user": {
+      "id": "esK6kWCULf6A",
+      "email": "admin@interiorerp.local",
+      "name": "onkar"
+    },
+    "items": [
+      {
+        "id": "charcoal-active-tee::M",
+        "productId": "charcoal-active-tee",
+        "name": "Charcoal Active Tee",
+        "image": "http://localhost:5000/uploads/products/motion-dry-tee.svg",
+        "category": "Active Wear",
+        "size": "M",
+        "price": 949,
+        "oldPrice": 1399,
+        "quantity": 1
+      }
+    ],
+    "itemCount": 1,
+    "subtotal": 949,
+    "shipping": 99,
+    "tax": 76,
+    "total": 1124,
+    "shippingAddress": {
+      "id": "addr_1779821327594",
+      "label": "Homegvxv",
+      "fullName": "dsfsgs",
+      "phone": "",
+      "line1": "sfgb",
+      "line2": "sfg",
+      "city": "sdfg",
+      "state": "fsg",
+      "pincode": "sfgb",
+      "country": "Indiasfg"
+    },
+    "payment": {
+      "method": "COD",
+      "channel": "COD",
+      "status": "pending",
+      "transactionRef": null,
+      "paidAt": null
+    },
+    "notes": null,
+    "status": "Placed",
+    "createdAt": "2026-05-27T22:27:56.753Z",
+    "updatedAt": "2026-05-27T22:27:56.753Z"
+  },
+  {
     "id": "EMBER-ONCKZQGNER",
     "user": {
       "id": "JWA2965ELUIH",

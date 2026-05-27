@@ -69,13 +69,24 @@ function normalizeOrderPayment(payment) {
   const channel = sanitizeText(payment?.channel).toUpperCase()
   const transactionRef = sanitizeText(payment?.transactionRef)
   const status = sanitizeText(payment?.status)
+  const gateway = payment?.gateway && typeof payment.gateway === 'object' ? payment.gateway : null
+  const gatewayProvider = sanitizeText(gateway?.provider).toUpperCase()
+  const gatewayOrderId = sanitizeText(gateway?.orderId)
+  const gatewayPaymentId = sanitizeText(gateway?.paymentId)
+  const gatewaySignature = sanitizeText(gateway?.signature)
 
   if (method === 'ONLINE') {
     return {
       method: 'ONLINE',
       channel: channel || 'UPI',
       status: status || 'paid',
-      transactionRef: transactionRef || null,
+      transactionRef: transactionRef || gatewayPaymentId || null,
+      gateway: {
+        provider: gatewayProvider || channel || 'RAZORPAY',
+        orderId: gatewayOrderId || null,
+        paymentId: gatewayPaymentId || null,
+        signature: gatewaySignature || null,
+      },
     }
   }
 
@@ -84,6 +95,7 @@ function normalizeOrderPayment(payment) {
     channel: 'COD',
     status: status || 'pending',
     transactionRef: null,
+    gateway: null,
   }
 }
 
@@ -123,11 +135,12 @@ const useOrdersStore = create(
         if (orderItems.length === 0) {
           return null
         }
+        const paymentDetails = normalizeOrderPayment(payment)
 
         const nextOrder = {
           id: createOrderId(),
           createdAt: new Date().toISOString(),
-          status: 'Placed',
+          status: paymentDetails.method === 'ONLINE' ? 'Confirmed' : 'Placed',
           user: {
             id: user?.id ?? null,
             name: user?.name ?? 'Shopper',
@@ -140,7 +153,7 @@ const useOrdersStore = create(
           tax: toOrderAmount(tax),
           total: toOrderAmount(total),
           shippingAddress: normalizeOrderAddress(shippingAddress),
-          payment: normalizeOrderPayment(payment),
+          payment: paymentDetails,
           notes: sanitizeText(notes) || null,
         }
 

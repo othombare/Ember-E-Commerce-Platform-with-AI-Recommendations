@@ -5,6 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import authRoutes from './routes/authRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
+import paymentRoutes from './routes/paymentRoutes.js'
 import productRoutes from './routes/productRoutes.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -36,6 +37,7 @@ function createApp() {
 
   app.use('/api/auth', authRoutes)
   app.use('/api/products', productRoutes)
+  app.use('/api/payments', paymentRoutes)
   app.use('/api/orders', orderRoutes)
 
   app.use((req, res) => {

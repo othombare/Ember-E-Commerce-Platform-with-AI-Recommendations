@@ -66,6 +66,11 @@ function normalizePayment(payload) {
   const method = sanitizeText(payload?.method).toUpperCase()
   const channel = sanitizeText(payload?.channel).toUpperCase()
   const transactionRef = sanitizeText(payload?.transactionRef)
+  const gateway = payload?.gateway && typeof payload.gateway === 'object' ? payload.gateway : null
+  const gatewayProvider = sanitizeText(gateway?.provider).toUpperCase()
+  const gatewayOrderId = sanitizeText(gateway?.orderId)
+  const gatewayPaymentId = sanitizeText(gateway?.paymentId)
+  const gatewaySignature = sanitizeText(gateway?.signature)
 
   if (method === 'COD') {
     return {
@@ -74,6 +79,7 @@ function normalizePayment(payload) {
       status: 'pending',
       transactionRef: null,
       paidAt: null,
+      gateway: null,
     }
   }
 
@@ -84,8 +90,14 @@ function normalizePayment(payload) {
       method: 'ONLINE',
       channel: safeChannel,
       status: 'paid',
-      transactionRef: transactionRef || `TXN-${nanoid(10).toUpperCase()}`,
+      transactionRef: transactionRef || gatewayPaymentId || `TXN-${nanoid(10).toUpperCase()}`,
       paidAt: new Date().toISOString(),
+      gateway: {
+        provider: gatewayProvider || safeChannel || 'RAZORPAY',
+        orderId: gatewayOrderId || null,
+        paymentId: gatewayPaymentId || null,
+        signature: gatewaySignature || null,
+      },
     }
   }
 
@@ -95,6 +107,7 @@ function normalizePayment(payload) {
     status: 'pending',
     transactionRef: null,
     paidAt: null,
+    gateway: null,
   }
 }
 
@@ -103,6 +116,7 @@ export async function createOrder(payload) {
   const now = new Date().toISOString()
   const orderItems = normalizeOrderItems(payload.items)
   const itemCount = orderItems.reduce((count, item) => count + item.quantity, 0)
+  const payment = normalizePayment(payload.payment)
 
   const nextOrder = {
     id: `EMBER-${nanoid(10).toUpperCase()}`,
@@ -114,9 +128,9 @@ export async function createOrder(payload) {
     tax: toSafeAmount(payload.tax),
     total: toSafeAmount(payload.total),
     shippingAddress: normalizeShippingAddress(payload.shippingAddress),
-    payment: normalizePayment(payload.payment),
+    payment,
     notes: sanitizeText(payload.notes) || null,
-    status: 'Placed',
+    status: payment.method === 'ONLINE' ? 'Confirmed' : 'Placed',
     createdAt: now,
     updatedAt: now,
   }

@@ -18,92 +18,91 @@ import {
   normalizeAddresses,
 } from '../../utils/profile'
 import { getSpecialHeaderRoute, toSearchResultsRoute } from '../../utils/storeNavigation'
+import { loadRazorpayCheckoutScript } from '../../utils/razorpay'
 
-function generateTransactionReference() {
+const checkoutFlowSteps = [
+  'Browse Products',
+  'Add to Cart',
+  'View Cart',
+  'Proceed to Checkout',
+  'Login / Signup',
+  'Add Address',
+  'Select Payment Method',
+  'Payment Gateway',
+  'Order Confirmed',
+  'Shipping & Tracking',
+]
+
+function generateReceiptId() {
   const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase()
-  return `TXN-${Date.now()}-${randomPart}`
+  return `EMB-${Date.now()}-${randomPart}`
 }
 
-function validateOnlinePayment(channel, details) {
-  if (channel === 'UPI') {
-    const upiPattern = /^[a-zA-Z0-9._-]{2,}@[a-zA-Z]{2,}$/
-    return upiPattern.test(String(details.upiId ?? '').trim())
+function buildPaymentPayload({ paymentMethod, razorpayResponse = null }) {
+  if (paymentMethod === 'ONLINE') {
+    return {
+      method: 'ONLINE',
+      channel: 'RAZORPAY',
+      status: 'paid',
+      transactionRef: razorpayResponse?.razorpay_payment_id ?? null,
+      gateway: razorpayResponse
+        ? {
+            provider: 'RAZORPAY',
+            orderId: razorpayResponse.razorpay_order_id ?? null,
+            paymentId: razorpayResponse.razorpay_payment_id ?? null,
+            signature: razorpayResponse.razorpay_signature ?? null,
+          }
+        : null,
+    }
   }
 
-  if (channel === 'CARD') {
-    const cardDigits = String(details.cardNumber ?? '').replace(/\s+/g, '')
-    const validCard = /^\d{16}$/.test(cardDigits)
-    const validExpiry = /^(0[1-9]|1[0-2])\/(\d{2})$/.test(String(details.cardExpiry ?? '').trim())
-    const validCvv = /^\d{3,4}$/.test(String(details.cardCvv ?? '').trim())
-    const validName = String(details.cardName ?? '').trim().length >= 2
-
-    return validCard && validExpiry && validCvv && validName
+  return {
+    method: 'COD',
+    channel: 'COD',
+    status: 'pending',
+    transactionRef: null,
+    gateway: null,
   }
-
-  if (channel === 'QR') {
-    return true
-  }
-
-  return false
 }
 
-function QrPreview() {
+function CheckoutFlowTimeline() {
   return (
-    <svg className="h-[170px] w-[170px] rounded-md border border-[#d7d7d7] bg-white p-3" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <rect fill="#fff" height="100" width="100" x="0" y="0" />
-      <rect fill="#111" height="24" width="24" x="6" y="6" />
-      <rect fill="#fff" height="12" width="12" x="12" y="12" />
-      <rect fill="#111" height="24" width="24" x="70" y="6" />
-      <rect fill="#fff" height="12" width="12" x="76" y="12" />
-      <rect fill="#111" height="24" width="24" x="6" y="70" />
-      <rect fill="#fff" height="12" width="12" x="12" y="76" />
-      <rect fill="#111" height="4" width="4" x="40" y="8" />
-      <rect fill="#111" height="4" width="4" x="48" y="8" />
-      <rect fill="#111" height="4" width="4" x="56" y="8" />
-      <rect fill="#111" height="4" width="4" x="40" y="16" />
-      <rect fill="#111" height="4" width="4" x="48" y="16" />
-      <rect fill="#111" height="4" width="4" x="56" y="16" />
-      <rect fill="#111" height="4" width="4" x="36" y="34" />
-      <rect fill="#111" height="4" width="4" x="44" y="34" />
-      <rect fill="#111" height="4" width="4" x="52" y="34" />
-      <rect fill="#111" height="4" width="4" x="60" y="34" />
-      <rect fill="#111" height="4" width="4" x="36" y="42" />
-      <rect fill="#111" height="4" width="4" x="52" y="42" />
-      <rect fill="#111" height="4" width="4" x="60" y="42" />
-      <rect fill="#111" height="4" width="4" x="36" y="50" />
-      <rect fill="#111" height="4" width="4" x="44" y="50" />
-      <rect fill="#111" height="4" width="4" x="60" y="50" />
-      <rect fill="#111" height="4" width="4" x="36" y="58" />
-      <rect fill="#111" height="4" width="4" x="44" y="58" />
-      <rect fill="#111" height="4" width="4" x="52" y="58" />
-      <rect fill="#111" height="4" width="4" x="60" y="58" />
-      <rect fill="#111" height="4" width="4" x="70" y="34" />
-      <rect fill="#111" height="4" width="4" x="78" y="34" />
-      <rect fill="#111" height="4" width="4" x="86" y="34" />
-      <rect fill="#111" height="4" width="4" x="70" y="42" />
-      <rect fill="#111" height="4" width="4" x="86" y="42" />
-      <rect fill="#111" height="4" width="4" x="70" y="50" />
-      <rect fill="#111" height="4" width="4" x="78" y="50" />
-      <rect fill="#111" height="4" width="4" x="86" y="50" />
-      <rect fill="#111" height="4" width="4" x="34" y="70" />
-      <rect fill="#111" height="4" width="4" x="42" y="70" />
-      <rect fill="#111" height="4" width="4" x="50" y="70" />
-      <rect fill="#111" height="4" width="4" x="58" y="70" />
-      <rect fill="#111" height="4" width="4" x="66" y="70" />
-      <rect fill="#111" height="4" width="4" x="74" y="70" />
-      <rect fill="#111" height="4" width="4" x="82" y="70" />
-      <rect fill="#111" height="4" width="4" x="34" y="78" />
-      <rect fill="#111" height="4" width="4" x="50" y="78" />
-      <rect fill="#111" height="4" width="4" x="66" y="78" />
-      <rect fill="#111" height="4" width="4" x="82" y="78" />
-      <rect fill="#111" height="4" width="4" x="34" y="86" />
-      <rect fill="#111" height="4" width="4" x="42" y="86" />
-      <rect fill="#111" height="4" width="4" x="50" y="86" />
-      <rect fill="#111" height="4" width="4" x="58" y="86" />
-      <rect fill="#111" height="4" width="4" x="66" y="86" />
-      <rect fill="#111" height="4" width="4" x="74" y="86" />
-      <rect fill="#111" height="4" width="4" x="82" y="86" />
-    </svg>
+    <section className="px-4 pt-4 sm:px-6">
+      <div className="rounded-xl border border-[#ded7ca] bg-[#fffaf1] px-4 py-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-[12px] uppercase tracking-[0.2em] text-[#8b6f33]">Checkout Flow</p>
+            <h2 className="mt-1 text-[20px] font-semibold text-[#27211a]">Purchase journey from browse to delivery</h2>
+          </div>
+          <p className="text-[12px] text-[#7c6b53]">Razorpay Standard Checkout is used for online payments.</p>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {checkoutFlowSteps.map((step, index) => {
+            const isCompleted = index < 6
+            const isActive = index === 6
+            const isGateway = index === 7
+
+            return (
+              <div
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[12px] ${
+                  isCompleted
+                    ? 'border-[#bfa25f] bg-[#f7ecd0] text-[#4d3c13]'
+                    : isActive
+                      ? 'border-[#1f2125] bg-[#1f2125] text-white'
+                      : isGateway
+                        ? 'border-[#3d5c90] bg-[#eaf1ff] text-[#23406d]'
+                        : 'border-[#d8d8d8] bg-white text-[#666]'
+                }`}
+                key={step}
+              >
+                <span className="font-semibold">{index + 1}</span>
+                <span>{step}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -125,12 +124,6 @@ function CheckoutReviewPage() {
   const [addressError, setAddressError] = useState('')
 
   const [paymentMethod, setPaymentMethod] = useState('COD')
-  const [onlineChannel, setOnlineChannel] = useState('UPI')
-  const [upiId, setUpiId] = useState('')
-  const [cardNumber, setCardNumber] = useState('')
-  const [cardName, setCardName] = useState('')
-  const [cardExpiry, setCardExpiry] = useState('')
-  const [cardCvv, setCardCvv] = useState('')
   const [orderNote, setOrderNote] = useState('')
 
   const [statusMessage, setStatusMessage] = useState('')
@@ -302,64 +295,132 @@ function CheckoutReviewPage() {
       return
     }
 
-    if (paymentMethod === 'ONLINE') {
-      const isOnlinePaymentValid = validateOnlinePayment(onlineChannel, {
-        upiId,
-        cardNumber,
-        cardName,
-        cardExpiry,
-        cardCvv,
+    setIsSubmitting(true)
+    setStatusMessage(paymentMethod === 'ONLINE' ? 'Opening Razorpay Checkout...' : 'Placing your order...')
+
+    const finalizeOrder = async (paymentPayload) => {
+      const orderPayload = {
+        items: cartItems,
+        subtotal,
+        shipping,
+        tax,
+        total,
+        shippingAddress: selectedAddress,
+        payment: paymentPayload,
+        notes: orderNote,
+      }
+
+      let remoteOrderId = null
+
+      try {
+        const response = await api.post('/api/orders', orderPayload)
+        remoteOrderId = response.data?.order?.id ?? null
+      } catch (error) {
+        console.error('Remote order sync failed:', error)
+      }
+
+      const localOrderId = placeOrder({
+        ...orderPayload,
+        user,
       })
 
-      if (!isOnlinePaymentValid) {
-        setStatusMessage('Please complete valid payment details for online checkout.')
-        return
-      }
+      clearCart()
+      navigate('/my-profile', {
+        state: {
+          orderPlaced: true,
+          orderId: remoteOrderId ?? localOrderId,
+        },
+      })
     }
 
-    setIsSubmitting(true)
-    setStatusMessage('Placing your order...')
-
-    const transactionRef = paymentMethod === 'ONLINE' ? generateTransactionReference() : null
-    const paymentPayload = {
-      method: paymentMethod,
-      channel: paymentMethod === 'ONLINE' ? onlineChannel : 'COD',
-      status: paymentMethod === 'ONLINE' ? 'paid' : 'pending',
-      transactionRef,
+    if (paymentMethod === 'COD') {
+      await finalizeOrder(buildPaymentPayload({ paymentMethod: 'COD' }))
+      return
     }
-
-    const orderPayload = {
-      items: cartItems,
-      subtotal,
-      shipping,
-      tax,
-      total,
-      shippingAddress: selectedAddress,
-      payment: paymentPayload,
-      notes: orderNote,
-    }
-
-    let remoteOrderId = null
 
     try {
-      const response = await api.post('/api/orders', orderPayload)
-      remoteOrderId = response.data?.order?.id ?? null
+      const receipt = generateReceiptId()
+      const createOrderResponse = await api.post('/api/payments/razorpay/orders', {
+        amount: Math.round(total * 100),
+        currency: 'INR',
+        receipt,
+        notes: {
+          orderNote: orderNote || '',
+          itemCount: String(itemCount),
+          customerEmail: user?.email ?? '',
+        },
+      })
+
+      const keyId = createOrderResponse.data?.keyId
+      const razorpayOrder = createOrderResponse.data?.order
+
+      if (!keyId || !razorpayOrder?.id) {
+        throw new Error('Could not initialize Razorpay payment.')
+      }
+
+      const scriptLoaded = await loadRazorpayCheckoutScript()
+      if (!scriptLoaded || typeof window === 'undefined' || typeof window.Razorpay !== 'function') {
+        throw new Error('Razorpay checkout script could not be loaded.')
+      }
+
+      const razorpay = new window.Razorpay({
+        key: keyId,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency ?? 'INR',
+        name: 'Ember',
+        description: `Payment for ${cartItems.length} item(s)`,
+        order_id: razorpayOrder.id,
+        prefill: {
+          name: user?.name ?? '',
+          email: user?.email ?? '',
+          contact: user?.phone ?? '',
+        },
+        theme: {
+          color: '#1f2125',
+        },
+        modal: {
+          ondismiss: () => {
+            setStatusMessage('Payment cancelled. You can try again.')
+            setIsSubmitting(false)
+          },
+        },
+        handler: async (response) => {
+          try {
+            const verifyResponse = await api.post('/api/payments/razorpay/verify', {
+              orderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+            })
+
+            if (!verifyResponse.data?.verified) {
+              throw new Error('Payment verification failed.')
+            }
+
+            await finalizeOrder(
+              buildPaymentPayload({
+                paymentMethod: 'ONLINE',
+                razorpayResponse: response,
+              }),
+            )
+          } catch (error) {
+            setStatusMessage(error.message || 'Razorpay payment verification failed.')
+          } finally {
+            setIsSubmitting(false)
+          }
+        },
+      })
+
+      razorpay.on('payment.failed', (response) => {
+        const reason = response?.error?.description || response?.error?.reason || 'Payment failed. Please try again.'
+        setStatusMessage(reason)
+        setIsSubmitting(false)
+      })
+
+      razorpay.open()
     } catch (error) {
-      console.error('Remote order sync failed:', error)
+      setStatusMessage(error.message || 'Could not start Razorpay checkout.')
+      setIsSubmitting(false)
     }
-
-    const localOrderId = placeOrder({
-      ...orderPayload,
-      user,
-    })
-
-    clearCart()
-    navigate('/my-profile', {
-      state: {
-        orderPlaced: true,
-        orderId: remoteOrderId ?? localOrderId,
-      },
-    })
   }
 
   if (cartItems.length === 0) {
@@ -386,6 +447,8 @@ function CheckoutReviewPage() {
             searchText={searchText}
             userName={user?.name ?? 'Shopper'}
           />
+
+          <CheckoutFlowTimeline />
 
           <section className="mx-4 mt-6 rounded-lg border border-[#dddddd] bg-white p-6 text-center sm:mx-6">
             <h1 className="text-[32px] font-semibold text-[#232323]">Checkout Review</h1>
@@ -428,6 +491,8 @@ function CheckoutReviewPage() {
           searchText={searchText}
           userName={user?.name ?? 'Shopper'}
         />
+
+        <CheckoutFlowTimeline />
 
         <section className="px-4 py-5 sm:px-6 sm:py-7">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#dddddd] pb-3">
@@ -662,101 +727,17 @@ function CheckoutReviewPage() {
                       onChange={() => setPaymentMethod('ONLINE')}
                       type="radio"
                     />
-                    <span className="text-[14px] font-medium text-[#2f2f2f]">Online Payment</span>
-                    <p className="mt-1 text-[12px] text-[#666]">UPI, Card, or QR scan supported.</p>
+                    <span className="text-[14px] font-medium text-[#2f2f2f]">Razorpay Checkout</span>
+                    <p className="mt-1 text-[12px] text-[#666]">UPI, cards, netbanking, and wallets are supported.</p>
                   </label>
                 </div>
 
                 {paymentMethod === 'ONLINE' ? (
                   <div className="mt-4 rounded-md border border-[#e4e4e4] bg-[#fafafa] p-4">
-                    <div className="flex flex-wrap gap-2">
-                      {['UPI', 'CARD', 'QR'].map((channel) => (
-                        <button
-                          className={`rounded-md border px-3 py-1 text-[12px] ${
-                            onlineChannel === channel ? 'border-[#1f2125] bg-[#1f2125] text-white' : 'border-[#cfcfcf] bg-white text-[#3f3f3f]'
-                          }`}
-                          key={channel}
-                          onClick={() => setOnlineChannel(channel)}
-                          type="button"
-                        >
-                          {channel}
-                        </button>
-                      ))}
-                    </div>
-
-                    {onlineChannel === 'UPI' ? (
-                      <label className="mt-3 block text-[12px] text-[#555]">
-                        UPI ID
-                        <input
-                          className="mt-1 h-10 w-full border border-[#d0d0d0] bg-white px-3 text-[14px]"
-                          onChange={(event) => setUpiId(event.target.value)}
-                          placeholder="name@upi"
-                          type="text"
-                          value={upiId}
-                        />
-                      </label>
-                    ) : null}
-
-                    {onlineChannel === 'CARD' ? (
-                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <label className="text-[12px] text-[#555] sm:col-span-2">
-                          Card Number
-                          <input
-                            className="mt-1 h-10 w-full border border-[#d0d0d0] bg-white px-3 text-[14px]"
-                            maxLength={19}
-                            onChange={(event) => setCardNumber(event.target.value)}
-                            placeholder="1234 5678 9012 3456"
-                            type="text"
-                            value={cardNumber}
-                          />
-                        </label>
-
-                        <label className="text-[12px] text-[#555] sm:col-span-2">
-                          Name on Card
-                          <input
-                            className="mt-1 h-10 w-full border border-[#d0d0d0] bg-white px-3 text-[14px]"
-                            onChange={(event) => setCardName(event.target.value)}
-                            placeholder="Cardholder Name"
-                            type="text"
-                            value={cardName}
-                          />
-                        </label>
-
-                        <label className="text-[12px] text-[#555]">
-                          Expiry (MM/YY)
-                          <input
-                            className="mt-1 h-10 w-full border border-[#d0d0d0] bg-white px-3 text-[14px]"
-                            maxLength={5}
-                            onChange={(event) => setCardExpiry(event.target.value)}
-                            placeholder="MM/YY"
-                            type="text"
-                            value={cardExpiry}
-                          />
-                        </label>
-
-                        <label className="text-[12px] text-[#555]">
-                          CVV
-                          <input
-                            className="mt-1 h-10 w-full border border-[#d0d0d0] bg-white px-3 text-[14px]"
-                            maxLength={4}
-                            onChange={(event) => setCardCvv(event.target.value)}
-                            placeholder="***"
-                            type="password"
-                            value={cardCvv}
-                          />
-                        </label>
-                      </div>
-                    ) : null}
-
-                    {onlineChannel === 'QR' ? (
-                      <div className="mt-3 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
-                        <QrPreview />
-                        <div>
-                          <p className="text-[13px] font-medium text-[#2f2f2f]">Scan and Pay via Any UPI App</p>
-                          <p className="mt-1 text-[12px] text-[#666]">Google Pay, PhonePe, Paytm, BHIM, or any UPI app.</p>
-                        </div>
-                      </div>
-                    ) : null}
+                    <p className="text-[13px] font-medium text-[#2f2f2f]">Secure checkout powered by Razorpay.</p>
+                    <p className="mt-1 text-[12px] leading-relaxed text-[#666]">
+                      You&apos;ll be able to pay using UPI, card, netbanking, or wallet from Razorpay&apos;s secure modal after you click pay.
+                    </p>
                   </div>
                 ) : null}
 
@@ -815,7 +796,13 @@ function CheckoutReviewPage() {
                 onClick={handlePlaceOrder}
                 type="button"
               >
-                {isSubmitting ? 'Processing Order...' : 'Place Order'}
+                {isSubmitting
+                  ? paymentMethod === 'ONLINE'
+                    ? 'Opening Razorpay...'
+                    : 'Processing Order...'
+                  : paymentMethod === 'ONLINE'
+                    ? 'Pay with Razorpay'
+                    : 'Place Order'}
               </button>
             </aside>
           </div>

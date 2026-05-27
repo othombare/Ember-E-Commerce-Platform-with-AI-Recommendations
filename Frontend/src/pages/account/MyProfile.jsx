@@ -601,7 +601,7 @@ function MyProfile() {
               <article className="border border-[#e2e6ea] bg-white px-5 py-4">
                 <p className="text-[16px] font-semibold text-[#20252a]">Frequently Visited:</p>
                 <div className="mt-3 flex flex-wrap gap-4 text-[14px] text-[#6f757a]">
-                  <button className="transition hover:text-[#2874f0]" onClick={() => navigate('/my-profile')} type="button">
+                  <button className="transition hover:text-[#2874f0]" onClick={() => navigate('/my-profile?section=orders')} type="button">
                     Track Order
                   </button>
                   <button className="transition hover:text-[#2874f0]" onClick={() => navigate('/support/contact-us')} type="button">
@@ -614,7 +614,7 @@ function MyProfile() {
             <section className="border border-[#e2e6ea] bg-white p-5 sm:p-8">
               {checkoutSuccessOrderId ? (
                 <div className="mb-5 rounded border border-[#d7ead1] bg-[#f3fbf0] px-4 py-3 text-[14px] text-[#2f5a2f]">
-                  Order placed successfully. Order ID: {checkoutSuccessOrderId}
+                  Order placed successfully. Order ID: {checkoutSuccessOrderId}. Shipping and tracking updates will appear in My Orders.
                 </div>
               ) : null}
 
